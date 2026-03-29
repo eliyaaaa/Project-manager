@@ -48,7 +48,7 @@ function TaskRow({ task, project, onEdit }) {
 }
 
 export default function Dashboard() {
-  const { projects, tasks, openModal, setCurrentPage } = useApp();
+  const { projects, tasks, openModal, setCurrentPage, navigateToProject } = useApp();
 
   const activeTasks  = tasks.filter(t => t.status !== 'completed' && t.status !== 'cancelled');
   const overdue      = activeTasks.filter(t => isOverdue(t.dueDate));
@@ -154,7 +154,7 @@ export default function Dashboard() {
             const pct     = pTasks.length ? Math.round((pDone / pTasks.length) * 100) : 0;
             const st      = PROJECT_STATUSES[proj.status];
             return (
-              <div key={proj.id} className="flex items-center gap-4 px-4 py-3">
+              <button key={proj.id} onClick={() => navigateToProject(proj.id)} className="flex items-center gap-4 px-4 py-3 w-full text-right hover:bg-indigo-50/50 transition-colors cursor-pointer">
                 <div className="w-3 h-3 rounded-full shrink-0" style={{ background: proj.color }} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
@@ -169,7 +169,7 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <span className="text-xs text-slate-400 shrink-0">{pActive} פתוחות</span>
-              </div>
+              </button>
             );
           })}
         </div>

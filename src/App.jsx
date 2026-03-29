@@ -3,6 +3,7 @@ import { AppProvider, useApp } from './context/AppContext';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import ProjectList from './components/ProjectList';
+import ProjectDetail from './components/ProjectDetail';
 import TaskList from './components/TaskList';
 import CalendarView from './components/CalendarView';
 import ProjectModal from './components/modals/ProjectModal';
@@ -14,8 +15,9 @@ function AppContent() {
   const renderPage = () => {
     switch (currentPage) {
       case 'dashboard': return <Dashboard />;
-      case 'projects':  return <ProjectList />;
-      case 'tasks':     return <TaskList />;
+      case 'projects':        return <ProjectList />;
+      case 'project-detail':  return <ProjectDetail />;
+      case 'tasks':           return <TaskList />;
       case 'calendar':  return <CalendarView />;
       default:          return <Dashboard />;
     }

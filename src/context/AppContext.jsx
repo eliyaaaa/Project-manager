@@ -28,6 +28,7 @@ export function AppProvider({ children }) {
   const [tasks, setTasks]       = useState(() => load('pm_tasks', DEMO_TASKS));
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [modal, setModal]       = useState(null); // { type, mode, data, defaults }
+  const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [taskFilters, setTaskFilters] = useState({ search: '', projectId: '', priority: '', status: '' });
   const [projectFilter, setProjectFilter] = useState('');
 
@@ -103,10 +104,17 @@ export function AppProvider({ children }) {
   const openModal  = useCallback((type, mode = 'create', data = null, defaults = {}) => setModal({ type, mode, data, defaults }), []);
   const closeModal = useCallback(() => setModal(null), []);
 
+  // --- Navigation to project detail ---
+  const navigateToProject = useCallback((projectId) => {
+    setSelectedProjectId(projectId);
+    setCurrentPage('project-detail');
+  }, []);
+
   return (
     <AppContext.Provider value={{
       projects, tasks,
       currentPage, setCurrentPage,
+      selectedProjectId, navigateToProject,
       modal, openModal, closeModal,
       taskFilters, setTaskFilters,
       projectFilter, setProjectFilter,

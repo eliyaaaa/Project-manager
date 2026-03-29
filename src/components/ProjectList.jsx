@@ -12,7 +12,7 @@ const FILTERS = [
   { id: 'completed', label: 'הושלם'      },
 ];
 
-function ProjectCard({ project, tasks, onEdit, onDelete }) {
+function ProjectCard({ project, tasks, onEdit, onDelete, onNavigate }) {
   const [menu, setMenu] = useState(false);
   const pTasks   = tasks.filter(t => t.projectId === project.id);
   const done     = pTasks.filter(t => t.status === 'completed').length;
@@ -21,7 +21,7 @@ function ProjectCard({ project, tasks, onEdit, onDelete }) {
   const st       = PROJECT_STATUSES[project.status];
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col cursor-pointer" onClick={onNavigate}>
       {/* Color stripe */}
       <div className="h-1.5 w-full" style={{ background: project.color }} />
 
@@ -36,7 +36,7 @@ function ProjectCard({ project, tasks, onEdit, onDelete }) {
           </div>
 
           {/* Menu */}
-          <div className="relative shrink-0">
+          <div className="relative shrink-0" onClick={e => e.stopPropagation()}>
             <button onClick={() => setMenu(v => !v)} className="p-1 rounded hover:bg-slate-100 text-slate-400">
               <MoreVertical size={15} />
             </button>
@@ -91,7 +91,7 @@ function ProjectCard({ project, tasks, onEdit, onDelete }) {
 }
 
 export default function ProjectList() {
-  const { projects, tasks, openModal, deleteProject, projectFilter, setProjectFilter } = useApp();
+  const { projects, tasks, openModal, deleteProject, projectFilter, setProjectFilter, navigateToProject } = useApp();
   const [confirmDelete, setConfirmDelete] = useState(null);
 
   const filtered = projectFilter ? projects.filter(p => p.status === projectFilter) : projects;
@@ -154,6 +154,7 @@ export default function ProjectList() {
               tasks={tasks}
               onEdit={proj => openModal('project','edit',proj)}
               onDelete={handleDelete}
+              onNavigate={() => navigateToProject(p.id)}
             />
           ))}
         </div>
