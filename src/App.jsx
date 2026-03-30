@@ -6,6 +6,7 @@ import ProjectList from './components/ProjectList';
 import ProjectDetail from './components/ProjectDetail';
 import TaskList from './components/TaskList';
 import CalendarView from './components/CalendarView';
+import FollowUps from './components/FollowUps';
 import ProjectModal from './components/modals/ProjectModal';
 import TaskModal from './components/modals/TaskModal';
 
@@ -18,8 +19,9 @@ function AppContent() {
       case 'projects':        return <ProjectList />;
       case 'project-detail':  return <ProjectDetail />;
       case 'tasks':           return <TaskList />;
-      case 'calendar':  return <CalendarView />;
-      default:          return <Dashboard />;
+      case 'calendar':   return <CalendarView />;
+      case 'followups':  return <FollowUps />;
+      default:           return <Dashboard />;
     }
   };
 

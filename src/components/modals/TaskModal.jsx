@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2, CheckCircle2, Square } from 'lucide-react';
+import { X, Plus, Trash2, CheckCircle2, Square, Bell, BellOff } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { PRIORITIES, TASK_STATUSES } from '../../utils/constants';
 import { today } from '../../utils/dateUtils';
@@ -14,6 +14,7 @@ export default function TaskModal() {
 
   const [form, setForm] = useState({
     title: '', description: '', projectId: '', dueDate: '', priority: 'medium', status: 'todo', subtasks: [],
+    followUp: null, // null = no follow-up, { date, note } = has follow-up
   });
   const [newSub, setNewSub]   = useState('');
   const [errors, setErrors]   = useState({});
@@ -25,6 +26,7 @@ export default function TaskModal() {
         projectId: task.projectId||'', dueDate: task.dueDate||'',
         priority: task.priority, status: task.status,
         subtasks: (task.subtasks||[]).map(s => ({ ...s })),
+        followUp: task.followUp ? { ...task.followUp } : null,
       });
     } else {
       setForm({
@@ -32,6 +34,7 @@ export default function TaskModal() {
         projectId: defs.projectId||'',
         dueDate: defs.dueDate||'',
         priority: 'medium', status: 'todo', subtasks: [],
+        followUp: null,
       });
     }
     setErrors({});
@@ -58,6 +61,7 @@ export default function TaskModal() {
       priority: form.priority,
       status: form.status,
       subtasks: form.subtasks,
+      followUp: form.followUp?.date ? { date: form.followUp.date, note: form.followUp.note || '' } : null,
     };
     if (isEdit) updateTask(task.id, data);
     else addTask(data);
@@ -234,6 +238,54 @@ export default function TaskModal() {
                   <Plus size={16} />
                 </button>
               </div>
+            </div>
+
+            {/* Follow-up */}
+            <div className="border border-slate-200 rounded-xl overflow-hidden">
+              {/* Toggle header */}
+              <button
+                type="button"
+                onClick={() => set('followUp', form.followUp ? null : { date: '', note: '' })}
+                className={`w-full flex items-center justify-between px-4 py-3 text-sm font-medium transition-colors ${
+                  form.followUp ? 'bg-violet-50 text-violet-800' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {form.followUp ? <Bell size={15} className="text-violet-600" /> : <BellOff size={15} />}
+                  פולואו-אפ
+                  {form.followUp?.date && (
+                    <span className="text-xs bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full">
+                      {form.followUp.date}
+                    </span>
+                  )}
+                </div>
+                <span className="text-xs text-slate-400">{form.followUp ? 'לחץ להסרה' : 'לחץ להוספה'}</span>
+              </button>
+
+              {/* Follow-up fields */}
+              {form.followUp && (
+                <div className="px-4 py-3 space-y-3 bg-white">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 mb-1">תאריך פולואו-אפ</label>
+                    <input
+                      type="date"
+                      value={form.followUp.date}
+                      onChange={e => set('followUp', { ...form.followUp, date: e.target.value })}
+                      className="w-full border border-slate-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-300"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 mb-1">הערה לפולואו-אפ</label>
+                    <textarea
+                      value={form.followUp.note}
+                      onChange={e => set('followUp', { ...form.followUp, note: e.target.value })}
+                      placeholder="מה צריך לבדוק / לעשות בפולואו-אפ?"
+                      rows={2}
+                      className="w-full border border-slate-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-300 resize-none"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

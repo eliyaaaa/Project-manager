@@ -1,7 +1,7 @@
 import React from 'react';
-import { AlertCircle, Clock, CheckCircle2, FolderOpen, Plus, ArrowLeft, TrendingUp } from 'lucide-react';
+import { AlertCircle, Clock, CheckCircle2, FolderOpen, Plus, ArrowLeft, TrendingUp, Bell } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { isOverdue, isDueToday, getRelativeLabel, formatDate, daysDiff } from '../utils/dateUtils';
+import { isOverdue, isDueToday, getRelativeLabel, formatDate, daysDiff, today } from '../utils/dateUtils';
 import { PRIORITIES, TASK_STATUSES, PROJECT_STATUSES } from '../utils/constants';
 
 function StatCard({ icon: Icon, label, value, sub, color }) {
@@ -57,6 +57,11 @@ export default function Dashboard() {
   const completedAll = tasks.filter(t => t.status === 'completed');
 
   const urgent = [...overdue, ...dueToday].sort((a,b) => (a.dueDate||'') < (b.dueDate||'') ? -1 : 1);
+
+  const todayStr = today();
+  const followUpsToday = tasks.filter(t =>
+    t.followUp?.date === todayStr && t.status !== 'completed' && t.status !== 'cancelled'
+  );
 
   const getProject = (id) => projects.find(p => p.id === id);
 
@@ -132,6 +137,43 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Follow-ups today */}
+      {followUpsToday.length > 0 && (
+        <div className="bg-white rounded-xl border border-violet-200 shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-violet-100 bg-violet-50/60">
+            <div className="flex items-center gap-2">
+              <Bell size={16} className="text-violet-600" />
+              <h2 className="font-semibold text-violet-900 text-sm">פולואו-אפים להיום</h2>
+              <span className="bg-violet-100 text-violet-700 text-xs px-2 py-0.5 rounded-full font-medium">{followUpsToday.length}</span>
+            </div>
+            <button onClick={() => setCurrentPage('followups')} className="text-xs text-violet-600 hover:text-violet-800 flex items-center gap-1">
+              כל הפולואו-אפים <ArrowLeft size={12} />
+            </button>
+          </div>
+          <div className="divide-y divide-slate-50">
+            {followUpsToday.map(t => {
+              const proj = getProject(t.projectId);
+              const pri  = PRIORITIES[t.priority];
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => openModal('task','edit',t)}
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-violet-50/40 text-right transition-colors"
+                >
+                  <Bell size={14} className="text-violet-400 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-slate-800 truncate">{t.title}</p>
+                    {t.followUp?.note && <p className="text-xs text-slate-500 truncate">{t.followUp.note}</p>}
+                    {proj && <p className="text-xs text-slate-400 truncate">{proj.name}</p>}
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${pri?.bgClass}`}>{pri?.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Projects overview */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">

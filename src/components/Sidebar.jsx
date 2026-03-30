@@ -1,12 +1,13 @@
 import React from 'react';
-import { LayoutDashboard, FolderKanban, ListChecks, CalendarDays, CheckCircle2 } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, ListChecks, CalendarDays, CheckCircle2, Bell } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { isOverdue, isDueToday } from '../utils/dateUtils';
+import { isOverdue, isDueToday, today } from '../utils/dateUtils';
 
 const NAV = [
   { id: 'dashboard', label: 'לוח בקרה',  icon: LayoutDashboard },
   { id: 'projects',  label: 'פרויקטים',  icon: FolderKanban    },
   { id: 'tasks',     label: 'משימות',     icon: ListChecks      },
+  { id: 'followups', label: 'פולואו-אפ',  icon: Bell            },
   { id: 'calendar',  label: 'לוז',        icon: CalendarDays    },
 ];
 
@@ -16,6 +17,10 @@ export default function Sidebar() {
   const urgentCount = tasks.filter(t =>
     t.status !== 'completed' && t.status !== 'cancelled' &&
     (isOverdue(t.dueDate) || isDueToday(t.dueDate))
+  ).length;
+
+  const followUpTodayCount = tasks.filter(t =>
+    t.followUp?.date === today() && t.status !== 'completed' && t.status !== 'cancelled'
   ).length;
 
   return (
@@ -52,6 +57,11 @@ export default function Sidebar() {
               {id === 'tasks' && urgentCount > 0 && (
                 <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
                   {urgentCount > 9 ? '9+' : urgentCount}
+                </span>
+              )}
+              {id === 'followups' && followUpTodayCount > 0 && (
+                <span className="bg-violet-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                  {followUpTodayCount > 9 ? '9+' : followUpTodayCount}
                 </span>
               )}
             </button>
