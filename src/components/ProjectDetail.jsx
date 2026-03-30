@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { PRIORITIES, TASK_STATUSES, PROJECT_STATUSES } from '../utils/constants';
-import { getRelativeLabel, formatDate } from '../utils/dateUtils';
+import { getRelativeLabel, formatDate, formatDateHe } from '../utils/dateUtils';
 
 function SubtaskRow({ subtask, onToggle, onDelete }) {
   return (
@@ -83,6 +83,28 @@ function TaskRow({ task, onEdit, onDelete, onToggle, onToggleSubtask, onDeleteSu
 
             {task.description && (
               <p className="text-xs text-slate-400 mt-1 line-clamp-2">{task.description}</p>
+            )}
+
+            {/* Assignee / due date / follow-up */}
+            {(task.assignee || task.dueDate || task.followUp?.date) && (
+              <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+                {task.assignee && (
+                  <span className="text-xs text-slate-500 flex items-center gap-1">
+                    <span className="text-slate-400">אחראי:</span> {task.assignee}
+                  </span>
+                )}
+                {task.dueDate && (
+                  <span className="text-xs text-slate-500 flex items-center gap-1">
+                    <span className="text-slate-400">יעד:</span> {formatDate(task.dueDate)}
+                  </span>
+                )}
+                {task.followUp?.date && (
+                  <span className="text-xs text-violet-600 flex items-center gap-1">
+                    <Bell size={10} />
+                    {formatDate(task.followUp.date)}
+                  </span>
+                )}
+              </div>
             )}
           </div>
 

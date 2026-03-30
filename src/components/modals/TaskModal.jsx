@@ -15,6 +15,7 @@ export default function TaskModal() {
   const [form, setForm] = useState({
     title: '', description: '', projectId: '', dueDate: '', priority: 'medium', status: 'todo', subtasks: [],
     followUp: null, // null = no follow-up, { date, note } = has follow-up
+    assignee: '', notes: '',
   });
   const [newSub, setNewSub]   = useState('');
   const [errors, setErrors]   = useState({});
@@ -27,6 +28,7 @@ export default function TaskModal() {
         priority: task.priority, status: task.status,
         subtasks: (task.subtasks||[]).map(s => ({ ...s })),
         followUp: task.followUp ? { ...task.followUp } : null,
+        assignee: task.assignee||'', notes: task.notes||'',
       });
     } else {
       setForm({
@@ -35,6 +37,7 @@ export default function TaskModal() {
         dueDate: defs.dueDate||'',
         priority: 'medium', status: 'todo', subtasks: [],
         followUp: null,
+        assignee: '', notes: '',
       });
     }
     setErrors({});
@@ -62,6 +65,8 @@ export default function TaskModal() {
       status: form.status,
       subtasks: form.subtasks,
       followUp: form.followUp?.date ? { date: form.followUp.date, note: form.followUp.note || '' } : null,
+      assignee: form.assignee.trim() || null,
+      notes: form.notes.trim() || null,
     };
     if (isEdit) updateTask(task.id, data);
     else addTask(data);
@@ -120,6 +125,18 @@ export default function TaskModal() {
                 placeholder="פרטים נוספים..."
                 rows={2}
                 className="w-full border border-slate-200 rounded-lg py-2.5 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-none"
+              />
+            </div>
+
+            {/* Assignee */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">גורם אחראי</label>
+              <input
+                type="text"
+                value={form.assignee}
+                onChange={e => set('assignee', e.target.value)}
+                placeholder="שם הגורם האחראי..."
+                className="w-full border border-slate-200 rounded-lg py-2.5 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
               />
             </div>
 
@@ -238,6 +255,18 @@ export default function TaskModal() {
                   <Plus size={16} />
                 </button>
               </div>
+            </div>
+
+            {/* Notes */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">הערות</label>
+              <textarea
+                value={form.notes}
+                onChange={e => set('notes', e.target.value)}
+                placeholder="הערות נוספות..."
+                rows={3}
+                className="w-full border border-slate-200 rounded-lg py-2.5 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-none"
+              />
             </div>
 
             {/* Follow-up */}
