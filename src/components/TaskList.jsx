@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Plus, Search, Filter, CheckSquare, Square, Trash2, Edit2, ChevronDown, ChevronUp, CheckCircle2 } from 'lucide-react';
+import { Plus, Search, Filter, CheckSquare, Square, Trash2, Edit2, ChevronDown, ChevronUp, CheckCircle2, Bell } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { PRIORITIES, TASK_STATUSES } from '../utils/constants';
 import { getRelativeLabel, isOverdue, isDueToday } from '../utils/dateUtils';
@@ -151,13 +151,22 @@ export default function TaskList() {
           <h1 className="text-2xl font-bold text-slate-900">משימות</h1>
           <p className="text-slate-500 text-sm mt-0.5">{filtered.length} מתוך {tasks.length} משימות</p>
         </div>
-        <button
-          onClick={() => openModal('task','create')}
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
-        >
-          <Plus size={16} />
-          משימה חדשה
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => openModal('followup')}
+            className="flex items-center gap-2 bg-white border border-violet-300 hover:bg-violet-50 text-violet-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          >
+            <Bell size={16} />
+            פולואו-אפ חדש
+          </button>
+          <button
+            onClick={() => openModal('task','create')}
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
+          >
+            <Plus size={16} />
+            משימה חדשה
+          </button>
+        </div>
       </div>
 
       {/* Search + filter toggle */}

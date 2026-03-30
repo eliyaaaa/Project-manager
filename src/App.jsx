@@ -9,6 +9,7 @@ import CalendarView from './components/CalendarView';
 import FollowUps from './components/FollowUps';
 import ProjectModal from './components/modals/ProjectModal';
 import TaskModal from './components/modals/TaskModal';
+import FollowUpModal from './components/modals/FollowUpModal';
 
 function AppContent() {
   const { currentPage, modal } = useApp();
@@ -31,8 +32,9 @@ function AppContent() {
       <main className="flex-1 overflow-y-auto">
         {renderPage()}
       </main>
-      {modal?.type === 'project' && <ProjectModal />}
-      {modal?.type === 'task'    && <TaskModal />}
+      {modal?.type === 'project'  && <ProjectModal />}
+      {modal?.type === 'task'     && <TaskModal />}
+      {modal?.type === 'followup' && <FollowUpModal />}
     </div>
   );
 }
