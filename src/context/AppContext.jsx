@@ -26,14 +26,16 @@ const DEMO_TASKS = [
 export function AppProvider({ children }) {
   const [projects, setProjects] = useState(() => load('pm_projects', DEMO_PROJECTS));
   const [tasks, setTasks]       = useState(() => load('pm_tasks', DEMO_TASKS));
+  const [generalFollowUps, setGeneralFollowUps] = useState(() => load('pm_general_followups', []));
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [modal, setModal]       = useState(null); // { type, mode, data, defaults }
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [taskFilters, setTaskFilters] = useState({ search: '', projectId: '', priority: '', status: '' });
   const [projectFilter, setProjectFilter] = useState('');
 
-  useEffect(() => { localStorage.setItem('pm_projects', JSON.stringify(projects)); }, [projects]);
-  useEffect(() => { localStorage.setItem('pm_tasks',    JSON.stringify(tasks));    }, [tasks]);
+  useEffect(() => { localStorage.setItem('pm_projects',          JSON.stringify(projects));          }, [projects]);
+  useEffect(() => { localStorage.setItem('pm_tasks',             JSON.stringify(tasks));             }, [tasks]);
+  useEffect(() => { localStorage.setItem('pm_general_followups', JSON.stringify(generalFollowUps)); }, [generalFollowUps]);
 
   // --- Projects ---
   const addProject = useCallback((data) => {
@@ -100,6 +102,20 @@ export function AppProvider({ children }) {
     ));
   }, []);
 
+  // --- General follow-ups ---
+  const addGeneralFollowUp = useCallback((data) => {
+    const gf = { id: genId(), ...data, createdAt: new Date().toISOString() };
+    setGeneralFollowUps(prev => [...prev, gf]);
+  }, []);
+
+  const updateGeneralFollowUp = useCallback((id, data) => {
+    setGeneralFollowUps(prev => prev.map(gf => gf.id === id ? { ...gf, ...data } : gf));
+  }, []);
+
+  const deleteGeneralFollowUp = useCallback((id) => {
+    setGeneralFollowUps(prev => prev.filter(gf => gf.id !== id));
+  }, []);
+
   // --- Modals ---
   const openModal  = useCallback((type, mode = 'create', data = null, defaults = {}) => setModal({ type, mode, data, defaults }), []);
   const closeModal = useCallback(() => setModal(null), []);
@@ -112,7 +128,8 @@ export function AppProvider({ children }) {
 
   return (
     <AppContext.Provider value={{
-      projects, tasks,
+      projects, tasks, generalFollowUps,
+      addGeneralFollowUp, updateGeneralFollowUp, deleteGeneralFollowUp,
       currentPage, setCurrentPage,
       selectedProjectId, navigateToProject,
       modal, openModal, closeModal,

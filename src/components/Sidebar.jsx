@@ -4,12 +4,12 @@ import { useApp } from '../context/AppContext';
 import { isOverdue, isDueToday, today } from '../utils/dateUtils';
 
 const NAV = [
-  { id: 'dashboard', label: 'לוח בקרה',  icon: LayoutDashboard },
+  { id: 'dashboard', label: 'לוח בקרה',     icon: LayoutDashboard },
   { id: 'review',    label: 'משימות פתוחות', icon: ClipboardList },
-  { id: 'projects',  label: 'פרויקטים',  icon: FolderKanban    },
-  { id: 'tasks',     label: 'משימות',     icon: ListChecks      },
-  { id: 'followups', label: 'פולואו-אפ',  icon: Bell            },
-  { id: 'calendar',  label: 'לוז',        icon: CalendarDays    },
+  { id: 'projects',  label: 'פרויקטים',    icon: FolderKanban    },
+  { id: 'followups', label: 'פולואו-אפ',   icon: Bell            },
+  { id: 'calendar',  label: 'לוז',         icon: CalendarDays    },
+  { id: 'tasks',     label: 'משימות',      icon: ListChecks      },
 ];
 
 export default function Sidebar() {

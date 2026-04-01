@@ -31,6 +31,7 @@ function TaskRow({ task, project, onEdit }) {
   const relColor = rel?.type === 'overdue' ? 'text-red-600 font-semibold' :
                    rel?.type === 'today'   ? 'text-orange-600 font-semibold' :
                    rel?.type === 'soon'    ? 'text-amber-600' : 'text-slate-500';
+  const hasPendingFollowUp = task.followUp?.date && task.status !== 'completed';
   return (
     <button
       onClick={() => onEdit(task)}
@@ -41,14 +42,37 @@ function TaskRow({ task, project, onEdit }) {
         <p className="text-sm font-medium text-slate-800 truncate">{task.title}</p>
         {project && <p className="text-xs text-slate-400 truncate">{project.name}</p>}
       </div>
+      {hasPendingFollowUp && (
+        <span className="text-xs px-2 py-0.5 rounded-full shrink-0 bg-orange-100 text-orange-700 font-medium">ממתין לתגובה</span>
+      )}
       {rel && <span className={`text-xs shrink-0 ${relColor}`}>{rel.text}</span>}
       <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${pri?.bgClass}`}>{pri?.label}</span>
     </button>
   );
 }
 
+function FollowUpRow({ title, subtitle, date, onEdit }) {
+  const rel = getRelativeLabel(date);
+  const relColor = rel?.type === 'overdue' ? 'text-red-600 font-semibold' :
+                   rel?.type === 'today'   ? 'text-orange-600 font-semibold' : 'text-slate-500';
+  return (
+    <button
+      onClick={onEdit}
+      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 rounded-lg text-right transition-colors group"
+    >
+      <Bell size={14} className="text-violet-400 shrink-0" />
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-slate-800 truncate">{title}</p>
+        {subtitle && <p className="text-xs text-slate-400 truncate">{subtitle}</p>}
+      </div>
+      <span className="text-xs px-2 py-0.5 rounded-full shrink-0 bg-violet-100 text-violet-700 font-medium">פולואו-אפ</span>
+      {rel && <span className={`text-xs shrink-0 ${relColor}`}>{rel.text}</span>}
+    </button>
+  );
+}
+
 export default function Dashboard() {
-  const { projects, tasks, openModal, setCurrentPage, navigateToProject } = useApp();
+  const { projects, tasks, generalFollowUps, openModal, setCurrentPage, navigateToProject } = useApp();
 
   const activeTasks  = tasks.filter(t => t.status !== 'completed' && t.status !== 'cancelled');
   const overdue      = activeTasks.filter(t => isOverdue(t.dueDate));
@@ -59,6 +83,13 @@ export default function Dashboard() {
   const urgent = [...overdue, ...dueToday].sort((a,b) => (a.dueDate||'') < (b.dueDate||'') ? -1 : 1);
 
   const todayStr = today();
+
+  // Follow-up items due today or overdue — task follow-ups
+  const urgentFollowUpTasks = tasks.filter(t =>
+    t.followUp?.date && t.followUp.date <= todayStr && t.status !== 'completed' && t.status !== 'cancelled'
+  );
+  // Follow-up items due today or overdue — general follow-ups
+  const urgentGeneralFollowUps = (generalFollowUps || []).filter(g => g.date <= todayStr);
   const followUpsToday = tasks.filter(t =>
     t.followUp?.date === todayStr && t.status !== 'completed' && t.status !== 'cancelled'
   );
@@ -123,8 +154,10 @@ export default function Dashboard() {
             <div className="flex items-center gap-2">
               <AlertCircle size={16} className="text-red-500" />
               <h2 className="font-semibold text-slate-800 text-sm">דחוף ומיידי</h2>
-              {urgent.length > 0 && (
-                <span className="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full font-medium">{urgent.length}</span>
+              {(urgent.length + urgentFollowUpTasks.length + urgentGeneralFollowUps.length) > 0 && (
+                <span className="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full font-medium">
+                  {urgent.length + urgentFollowUpTasks.length + urgentGeneralFollowUps.length}
+                </span>
               )}
             </div>
             <button onClick={() => { setCurrentPage('tasks'); }} className="text-xs text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
@@ -132,11 +165,33 @@ export default function Dashboard() {
             </button>
           </div>
           <div className="divide-y divide-slate-50">
-            {urgent.length === 0 ? (
+            {urgent.length === 0 && urgentFollowUpTasks.length === 0 && urgentGeneralFollowUps.length === 0 ? (
               <p className="text-center text-slate-400 text-sm py-8">אין משימות דחופות 🎉</p>
-            ) : urgent.slice(0,5).map(t => (
-              <TaskRow key={t.id} task={t} project={getProject(t.projectId)} onEdit={t => openModal('task','edit',t)} />
-            ))}
+            ) : (
+              <>
+                {urgent.slice(0,5).map(t => (
+                  <TaskRow key={t.id} task={t} project={getProject(t.projectId)} onEdit={t => openModal('task','edit',t)} />
+                ))}
+                {urgentFollowUpTasks.map(t => (
+                  <FollowUpRow
+                    key={`fu-${t.id}`}
+                    title={t.title}
+                    subtitle={getProject(t.projectId)?.name}
+                    date={t.followUp.date}
+                    onEdit={() => openModal('task','edit',t)}
+                  />
+                ))}
+                {urgentGeneralFollowUps.map(g => (
+                  <FollowUpRow
+                    key={`gfu-${g.id}`}
+                    title={g.note || 'פולואו-אפ כללי'}
+                    subtitle={getProject(g.projectId)?.name}
+                    date={g.date}
+                    onEdit={() => setCurrentPage('followups')}
+                  />
+                ))}
+              </>
+            )}
           </div>
         </div>
 

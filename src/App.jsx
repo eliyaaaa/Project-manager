@@ -11,6 +11,7 @@ import ReviewPage from './components/ReviewPage';
 import ProjectModal from './components/modals/ProjectModal';
 import TaskModal from './components/modals/TaskModal';
 import FollowUpModal from './components/modals/FollowUpModal';
+import GeneralFollowUpEditModal from './components/modals/GeneralFollowUpEditModal';
 
 function AppContent() {
   const { currentPage, modal } = useApp();
@@ -37,6 +38,7 @@ function AppContent() {
       {modal?.type === 'project'  && <ProjectModal />}
       {modal?.type === 'task'     && <TaskModal />}
       {modal?.type === 'followup' && <FollowUpModal />}
+      {modal?.type === 'general-followup-edit' && <GeneralFollowUpEditModal />}
     </div>
   );
 }

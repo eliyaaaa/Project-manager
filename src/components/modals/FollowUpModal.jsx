@@ -5,7 +5,7 @@ import { today } from '../../utils/dateUtils';
 import { PRIORITIES, TASK_STATUSES } from '../../utils/constants';
 
 export default function FollowUpModal() {
-  const { modal, closeModal, updateTask, projects, tasks } = useApp();
+  const { modal, closeModal, updateTask, addGeneralFollowUp, projects, tasks } = useApp();
   const defaults = modal?.defaults || {};
 
   const [projectId, setProjectId] = useState(defaults.projectId || '');
@@ -39,20 +39,23 @@ export default function FollowUpModal() {
     }
   }, [projectId]);
 
-  // Pre-fill note from existing followUp if task already has one
+  // Pre-fill note from existing followUp if a real task is selected
   useEffect(() => {
-    if (taskId) {
+    if (taskId && taskId !== '__general__') {
       const t = tasks.find(x => x.id === taskId);
       if (t?.followUp?.note) setNote(t.followUp.note);
       else setNote('');
+    } else if (taskId === '__general__') {
+      setNote('');
     }
   }, [taskId]);
 
-  const selectedTask = tasks.find(t => t.id === taskId);
+  const isGeneral   = taskId === '__general__';
+  const selectedTask = !isGeneral ? tasks.find(t => t.id === taskId) : null;
 
   const validate = () => {
     const e = {};
-    if (!taskId)   e.taskId = 'יש לבחור משימה';
+    if (!taskId)   e.taskId = 'יש לבחור משימה או "כללי"';
     if (!date)     e.date   = 'יש לבחור תאריך פולואו-אפ';
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -61,9 +64,11 @@ export default function FollowUpModal() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validate()) return;
-    updateTask(taskId, {
-      followUp: { date, note: note.trim() },
-    });
+    if (isGeneral) {
+      addGeneralFollowUp({ date, note: note.trim(), projectId: projectId || null });
+    } else {
+      updateTask(taskId, { followUp: { date, note: note.trim() } });
+    }
     closeModal();
   };
 
@@ -115,6 +120,7 @@ export default function FollowUpModal() {
               }`}
             >
               <option value="">בחר משימה...</option>
+              <option value="__general__">— כללי —</option>
               {availableTasks.map(t => {
                 const p = projects.find(x => x.id === t.projectId);
                 return (
@@ -128,6 +134,12 @@ export default function FollowUpModal() {
           </div>
 
           {/* Selected task preview */}
+          {isGeneral && (
+            <div className="bg-violet-50 border border-violet-200 rounded-lg px-3 py-2.5 flex items-center gap-2">
+              <Bell size={14} className="text-violet-500 shrink-0" />
+              <p className="text-sm text-violet-800 font-medium">פולואו-אפ כללי — לא משויך למשימה</p>
+            </div>
+          )}
           {selectedTask && (
             <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 flex items-center gap-3">
               <div className="flex-1 min-w-0">
@@ -172,7 +184,7 @@ export default function FollowUpModal() {
           </div>
 
           {/* Notice if task already has a follow-up */}
-          {selectedTask?.followUp?.date && selectedTask.followUp.date !== date && (
+          {!isGeneral && selectedTask?.followUp?.date && selectedTask.followUp.date !== date && (
             <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
               <p className="text-xs text-amber-700">
                 ⚠️ למשימה זו כבר יש פולואו-אפ בתאריך {selectedTask.followUp.date}. שמירה תחליף אותו.
