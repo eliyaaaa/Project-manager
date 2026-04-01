@@ -7,6 +7,7 @@ import ProjectDetail from './components/ProjectDetail';
 import TaskList from './components/TaskList';
 import CalendarView from './components/CalendarView';
 import FollowUps from './components/FollowUps';
+import ReviewPage from './components/ReviewPage';
 import ProjectModal from './components/modals/ProjectModal';
 import TaskModal from './components/modals/TaskModal';
 import FollowUpModal from './components/modals/FollowUpModal';
@@ -17,6 +18,7 @@ function AppContent() {
   const renderPage = () => {
     switch (currentPage) {
       case 'dashboard': return <Dashboard />;
+      case 'review':    return <ReviewPage />;
       case 'projects':        return <ProjectList />;
       case 'project-detail':  return <ProjectDetail />;
       case 'tasks':           return <TaskList />;

@@ -1,10 +1,11 @@
 import React from 'react';
-import { LayoutDashboard, FolderKanban, ListChecks, CalendarDays, CheckCircle2, Bell } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, ListChecks, CalendarDays, CheckCircle2, Bell, ClipboardList } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { isOverdue, isDueToday, today } from '../utils/dateUtils';
 
 const NAV = [
   { id: 'dashboard', label: 'לוח בקרה',  icon: LayoutDashboard },
+  { id: 'review',    label: 'משימות פתוחות', icon: ClipboardList },
   { id: 'projects',  label: 'פרויקטים',  icon: FolderKanban    },
   { id: 'tasks',     label: 'משימות',     icon: ListChecks      },
   { id: 'followups', label: 'פולואו-אפ',  icon: Bell            },

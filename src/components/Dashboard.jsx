@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertCircle, Clock, CheckCircle2, FolderOpen, Plus, ArrowLeft, TrendingUp, Bell } from 'lucide-react';
+import { AlertCircle, Clock, CheckCircle2, FolderOpen, Plus, ArrowLeft, TrendingUp, Bell, RefreshCw } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { isOverdue, isDueToday, getRelativeLabel, formatDate, daysDiff, today } from '../utils/dateUtils';
 import { PRIORITIES, TASK_STATUSES, PROJECT_STATUSES } from '../utils/constants';
@@ -64,6 +64,29 @@ export default function Dashboard() {
   );
 
   const getProject = (id) => projects.find(p => p.id === id);
+
+  // Recurring topics: group recurring tasks by recurringTopic
+  const recurringGroups = (() => {
+    const recurring = tasks.filter(t => t.taskType === 'recurring');
+    if (!recurring.length) return [];
+    const map = {};
+    recurring.forEach(t => {
+      const topic = t.recurringTopic || '(ללא שם נושא)';
+      if (!map[topic]) map[topic] = [];
+      map[topic].push(t);
+    });
+    return Object.entries(map).map(([topic, list]) => {
+      const open = list
+        .filter(t => t.status !== 'completed' && t.status !== 'cancelled')
+        .sort((a, b) => {
+          if (!a.dueDate && !b.dueDate) return 0;
+          if (!a.dueDate) return 1;
+          if (!b.dueDate) return -1;
+          return a.dueDate.localeCompare(b.dueDate);
+        });
+      return { topic, next: open[0] || null };
+    }).sort((a, b) => a.topic.localeCompare(b.topic));
+  })();
 
   const byStatus = (s) => projects.filter(p => p.status === s).length;
 
@@ -169,6 +192,45 @@ export default function Dashboard() {
                   </div>
                   <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${pri?.bgClass}`}>{pri?.label}</span>
                 </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Recurring topics */}
+      {recurringGroups.length > 0 && (
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-100">
+            <RefreshCw size={16} className="text-teal-500" />
+            <h2 className="font-semibold text-slate-800 text-sm">נושאים שוטפים</h2>
+            <span className="bg-teal-100 text-teal-700 text-xs px-2 py-0.5 rounded-full font-medium">{recurringGroups.length}</span>
+          </div>
+          <div className="divide-y divide-slate-50">
+            {recurringGroups.map(({ topic, next }) => {
+              const pri = next ? PRIORITIES[next.priority] : null;
+              const rel = next?.dueDate ? getRelativeLabel(next.dueDate) : null;
+              const relColor =
+                rel?.type === 'overdue' ? 'text-red-600 font-semibold' :
+                rel?.type === 'today'   ? 'text-orange-600 font-semibold' :
+                rel?.type === 'soon'    ? 'text-amber-600' : 'text-slate-400';
+              return (
+                <div key={topic} className="flex items-center gap-3 px-4 py-3">
+                  <div className="w-1.5 h-1.5 rounded-full bg-teal-400 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-teal-700 truncate">{topic}</p>
+                    {next
+                      ? <p className="text-sm text-slate-700 truncate mt-0.5">{next.title}</p>
+                      : <p className="text-xs text-slate-400 mt-0.5 italic">אין משימות פתוחות</p>
+                    }
+                  </div>
+                  {next && (
+                    <div className="flex items-center gap-2 shrink-0">
+                      {rel && <span className={`text-xs ${relColor}`}>{rel.text}</span>}
+                      {pri && <span className={`text-xs px-2 py-0.5 rounded-full ${pri.bgClass}`}>{pri.label}</span>}
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>

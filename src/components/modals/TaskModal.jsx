@@ -16,6 +16,7 @@ export default function TaskModal() {
     title: '', description: '', projectId: '', dueDate: '', priority: 'medium', status: 'todo', subtasks: [],
     followUp: null, // null = no follow-up, { date, note } = has follow-up
     assignee: '', notes: '',
+    taskType: 'regular', recurringTopic: '',
   });
   const [newSub, setNewSub]   = useState('');
   const [errors, setErrors]   = useState({});
@@ -29,6 +30,7 @@ export default function TaskModal() {
         subtasks: (task.subtasks||[]).map(s => ({ ...s })),
         followUp: task.followUp ? { ...task.followUp } : null,
         assignee: task.assignee||'', notes: task.notes||'',
+        taskType: task.taskType||'regular', recurringTopic: task.recurringTopic||'',
       });
     } else {
       setForm({
@@ -38,6 +40,7 @@ export default function TaskModal() {
         priority: 'medium', status: 'todo', subtasks: [],
         followUp: null,
         assignee: '', notes: '',
+        taskType: 'regular', recurringTopic: '',
       });
     }
     setErrors({});
@@ -67,6 +70,8 @@ export default function TaskModal() {
       followUp: form.followUp?.date ? { date: form.followUp.date, note: form.followUp.note || '' } : null,
       assignee: form.assignee.trim() || null,
       notes: form.notes.trim() || null,
+      taskType: form.taskType,
+      recurringTopic: form.taskType === 'recurring' ? form.recurringTopic.trim() || null : null,
     };
     if (isEdit) updateTask(task.id, data);
     else addTask(data);
@@ -140,19 +145,62 @@ export default function TaskModal() {
               />
             </div>
 
-            {/* Project + Due date */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">פרויקט</label>
-                <select
-                  value={form.projectId}
-                  onChange={e => set('projectId', e.target.value)}
-                  className="w-full border border-slate-200 rounded-lg py-2.5 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                >
-                  <option value="">ללא פרויקט</option>
-                  {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                </select>
+            {/* Task type */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">סוג משימה</label>
+              <div className="flex gap-2">
+                {[
+                  { value: 'regular',   label: 'משימה רגילה' },
+                  { value: 'recurring', label: 'נושא שוטף'   },
+                  { value: 'project',   label: 'חלק מפרויקט' },
+                ].map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => set('taskType', opt.value)}
+                    className={`flex-1 py-2 rounded-lg border text-xs font-medium transition-all ${
+                      form.taskType === opt.value
+                        ? 'border-indigo-400 bg-indigo-50 text-indigo-800'
+                        : 'border-slate-200 text-slate-500 hover:bg-slate-50'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
               </div>
+            </div>
+
+            {/* Project / Topic + Due date */}
+            <div className="grid grid-cols-2 gap-3">
+              {/* Left col: depends on taskType */}
+              {form.taskType === 'project' && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">פרויקט</label>
+                  <select
+                    value={form.projectId}
+                    onChange={e => set('projectId', e.target.value)}
+                    className="w-full border border-slate-200 rounded-lg py-2.5 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                  >
+                    <option value="">ללא פרויקט</option>
+                    {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  </select>
+                </div>
+              )}
+              {form.taskType === 'recurring' && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">שם הנושא</label>
+                  <input
+                    type="text"
+                    value={form.recurringTopic}
+                    onChange={e => set('recurringTopic', e.target.value)}
+                    placeholder="לדוגמה: מזכירות חברה..."
+                    className="w-full border border-slate-200 rounded-lg py-2.5 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                  />
+                </div>
+              )}
+              {form.taskType === 'regular' && <div />}
+
+              {/* Right col: always due date */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">תאריך יעד</label>
                 <input
