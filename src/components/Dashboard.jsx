@@ -12,7 +12,7 @@ function StatCard({ icon: Icon, label, value, sub, color }) {
     green:  'bg-green-50  border-green-200  text-green-600',
   };
   return (
-    <div className={`rounded-xl border p-4 flex items-center gap-4 ${colors[color]}`}>
+    <div className={`rounded-xl border p-6 flex items-center gap-4 ${colors[color]}`}>
       <div className="rounded-lg bg-white/70 p-2.5">
         <Icon size={22} />
       </div>
@@ -35,7 +35,7 @@ function TaskRow({ task, project, onEdit }) {
   return (
     <button
       onClick={() => onEdit(task)}
-      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 rounded-lg text-right transition-colors group"
+      className="w-full flex items-center gap-3 px-6 py-3 hover:bg-slate-50 rounded-lg text-right transition-colors group"
     >
       <div className={`w-2 h-2 rounded-full shrink-0 ${pri?.dotClass}`} />
       <div className="flex-1 min-w-0">
@@ -58,7 +58,7 @@ function FollowUpRow({ title, subtitle, date, onEdit }) {
   return (
     <button
       onClick={onEdit}
-      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 rounded-lg text-right transition-colors group"
+      className="w-full flex items-center gap-3 px-6 py-3 hover:bg-slate-50 rounded-lg text-right transition-colors group"
     >
       <Bell size={14} className="text-violet-400 shrink-0" />
       <div className="flex-1 min-w-0">
@@ -122,7 +122,7 @@ export default function Dashboard() {
   const byStatus = (s) => projects.filter(p => p.status === s).length;
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
+    <div className="p-6 max-w-5xl mx-auto space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -139,7 +139,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 border-t border-slate-200/50 pt-2">
         <StatCard icon={FolderOpen}    label="פרויקטים פעילים"  value={byStatus('active')}       color="indigo" />
         <StatCard icon={AlertCircle}   label="באיחור"           value={overdue.length}            color="red"    sub={overdue.length ? 'דורש טיפול מיידי' : undefined} />
         <StatCard icon={Clock}         label="להיום"            value={dueToday.length}           color="orange" />
@@ -147,13 +147,13 @@ export default function Dashboard() {
       </div>
 
       {/* Urgent + Soon */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 border-t border-slate-200/50 pt-2">
         {/* Urgent */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
             <div className="flex items-center gap-2">
               <AlertCircle size={16} className="text-red-500" />
-              <h2 className="font-semibold text-slate-800 text-sm">דחוף ומיידי</h2>
+              <h2 className="font-semibold text-slate-800 text-base">דחוף ומיידי</h2>
               {(urgent.length + urgentFollowUpTasks.length + urgentGeneralFollowUps.length) > 0 && (
                 <span className="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full font-medium">
                   {urgent.length + urgentFollowUpTasks.length + urgentGeneralFollowUps.length}
@@ -197,10 +197,10 @@ export default function Dashboard() {
 
         {/* Coming soon */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
             <div className="flex items-center gap-2">
               <Clock size={16} className="text-amber-500" />
-              <h2 className="font-semibold text-slate-800 text-sm">השבוע הקרוב</h2>
+              <h2 className="font-semibold text-slate-800 text-base">השבוע הקרוב</h2>
               {dueSoon.length > 0 && (
                 <span className="bg-amber-100 text-amber-700 text-xs px-2 py-0.5 rounded-full font-medium">{dueSoon.length}</span>
               )}
@@ -218,11 +218,11 @@ export default function Dashboard() {
 
       {/* Follow-ups today */}
       {followUpsToday.length > 0 && (
-        <div className="bg-white rounded-xl border border-violet-200 shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-violet-100 bg-violet-50/60">
+        <div className="bg-white rounded-xl border border-violet-200 shadow-sm overflow-hidden border-t border-slate-200/50">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-violet-100 bg-violet-50/60">
             <div className="flex items-center gap-2">
               <Bell size={16} className="text-violet-600" />
-              <h2 className="font-semibold text-violet-900 text-sm">פולואו-אפים להיום</h2>
+              <h2 className="font-semibold text-violet-900 text-base">פולואו-אפים להיום</h2>
               <span className="bg-violet-100 text-violet-700 text-xs px-2 py-0.5 rounded-full font-medium">{followUpsToday.length}</span>
             </div>
             <button onClick={() => setCurrentPage('followups')} className="text-xs text-violet-600 hover:text-violet-800 flex items-center gap-1">
@@ -237,7 +237,7 @@ export default function Dashboard() {
                 <button
                   key={t.id}
                   onClick={() => openModal('task','edit',t)}
-                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-violet-50/40 text-right transition-colors"
+                  className="w-full flex items-center gap-3 px-6 py-3 hover:bg-violet-50/40 text-right transition-colors"
                 >
                   <Bell size={14} className="text-violet-400 shrink-0" />
                   <div className="flex-1 min-w-0">
@@ -255,10 +255,10 @@ export default function Dashboard() {
 
       {/* Recurring topics */}
       {recurringGroups.length > 0 && (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-100">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden border-t border-slate-200/50">
+          <div className="flex items-center gap-2 px-6 py-4 border-b border-slate-100">
             <RefreshCw size={16} className="text-teal-500" />
-            <h2 className="font-semibold text-slate-800 text-sm">נושאים שוטפים</h2>
+            <h2 className="font-semibold text-slate-800 text-base">נושאים שוטפים</h2>
             <span className="bg-teal-100 text-teal-700 text-xs px-2 py-0.5 rounded-full font-medium">{recurringGroups.length}</span>
           </div>
           <div className="divide-y divide-slate-50">
@@ -270,7 +270,7 @@ export default function Dashboard() {
                 rel?.type === 'today'   ? 'text-orange-600 font-semibold' :
                 rel?.type === 'soon'    ? 'text-amber-600' : 'text-slate-400';
               return (
-                <div key={topic} className="flex items-center gap-3 px-4 py-3">
+                <div key={topic} className="flex items-center gap-3 px-6 py-4">
                   <div className="w-1.5 h-1.5 rounded-full bg-teal-400 shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-teal-700 truncate">{topic}</p>
@@ -293,11 +293,11 @@ export default function Dashboard() {
       )}
 
       {/* Projects overview */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden border-t border-slate-200/50">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
           <div className="flex items-center gap-2">
             <TrendingUp size={16} className="text-indigo-500" />
-            <h2 className="font-semibold text-slate-800 text-sm">פרויקטים</h2>
+            <h2 className="font-semibold text-slate-800 text-base">פרויקטים</h2>
           </div>
           <button onClick={() => setCurrentPage('projects')} className="text-xs text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
             כל הפרויקטים <ArrowLeft size={12} />
@@ -313,7 +313,7 @@ export default function Dashboard() {
             const pct     = pTasks.length ? Math.round((pDone / pTasks.length) * 100) : 0;
             const st      = PROJECT_STATUSES[proj.status];
             return (
-              <button key={proj.id} onClick={() => navigateToProject(proj.id)} className="flex items-center gap-4 px-4 py-3 w-full text-right hover:bg-indigo-50/50 transition-colors cursor-pointer">
+              <button key={proj.id} onClick={() => navigateToProject(proj.id)} className="flex items-center gap-4 px-6 py-4 w-full text-right hover:bg-indigo-50/50 transition-colors cursor-pointer">
                 <div className="w-3 h-3 rounded-full shrink-0" style={{ background: proj.color }} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">

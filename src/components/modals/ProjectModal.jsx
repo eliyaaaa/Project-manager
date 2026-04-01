@@ -12,6 +12,12 @@ export default function ProjectModal() {
     name: '', description: '', status: 'active', color: PROJECT_COLORS[0],
   });
   const [errors, setErrors] = useState({});
+  const [isExiting, setIsExiting] = useState(false);
+
+  const handleClose = () => {
+    setIsExiting(true);
+    setTimeout(closeModal, 200);
+  };
 
   useEffect(() => {
     if (isEdit && proj) {
@@ -37,16 +43,16 @@ export default function ProjectModal() {
     const data = { name: form.name.trim(), description: form.description.trim(), status: form.status, color: form.color };
     if (isEdit) updateProject(proj.id, data);
     else addProject(data);
-    closeModal();
+    handleClose();
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={closeModal}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md" onClick={e => e.stopPropagation()}>
+    <div className={`modal-backdrop fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4${isExiting ? ' exiting' : ''}`} onClick={handleClose}>
+      <div className={`modal-panel bg-white rounded-2xl shadow-2xl w-full max-w-md${isExiting ? ' exiting' : ''}`} onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
           <h2 className="font-bold text-slate-900 text-lg">{isEdit ? 'עריכת פרויקט' : 'פרויקט חדש'}</h2>
-          <button onClick={closeModal} className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 transition-colors">
+          <button onClick={handleClose} className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 transition-colors">
             <X size={18} />
           </button>
         </div>
@@ -119,7 +125,7 @@ export default function ProjectModal() {
 
           {/* Actions */}
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={closeModal} className="flex-1 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+            <button type="button" onClick={handleClose} className="flex-1 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
               ביטול
             </button>
             <button type="submit" className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm">

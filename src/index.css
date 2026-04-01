@@ -20,3 +20,76 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* ── Modal animations ────────────────────────────────────────── */
+@keyframes backdropFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes backdropFadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+@keyframes panelSlideUp {
+  from { opacity: 0; transform: translateY(18px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+@keyframes panelSlideDown {
+  from { opacity: 1; transform: translateY(0)    scale(1);    }
+  to   { opacity: 0; transform: translateY(18px) scale(0.98); }
+}
+.modal-backdrop          { animation: backdropFadeIn  0.20s ease     forwards; }
+.modal-backdrop.exiting  { animation: backdropFadeOut 0.20s ease     forwards; }
+.modal-panel             { animation: panelSlideUp    0.25s ease-out forwards; }
+.modal-panel.exiting     { animation: panelSlideDown  0.20s ease-in  forwards; }
+
+/* ── Form expand/collapse ────────────────────────────────────── */
+.expandable-grid {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
+}
+.expandable-grid.open {
+  grid-template-rows: 1fr;
+}
+.expandable-grid > .expandable-inner {
+  overflow: hidden;
+}
+
+/* ── Page transitions ─────────────────────────────────────────── */
+@keyframes pageFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.page-fade { animation: pageFadeIn 0.15s ease forwards; }
+
+/* ── Toast animations ─────────────────────────────────────────── */
+@keyframes toastSlideIn {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes toastSlideOut {
+  from { transform: translateY(0);    opacity: 1; }
+  to   { transform: translateY(12px); opacity: 0; }
+}
+.toast-enter { animation: toastSlideIn  0.22s ease forwards; }
+.toast-exit  { animation: toastSlideOut 0.35s ease forwards; }
+
+/* ── Task completion strikethrough animation ──────────────────── */
+.task-title-strike {
+  position: relative;
+  display: inline;
+}
+.task-title-strike::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: 50%;
+  height: 1.5px;
+  background: #94a3b8;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+.task-title-strike.striking::after {
+  transform: scaleX(1);
+}

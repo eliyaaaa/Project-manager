@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Plus, Search, Filter, CheckSquare, Square, Trash2, Edit2, ChevronDown, ChevronUp, CheckCircle2, Bell } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { useToast } from '../context/ToastContext';
 import { PRIORITIES, TASK_STATUSES } from '../utils/constants';
 import { getRelativeLabel, isOverdue, isDueToday } from '../utils/dateUtils';
 
@@ -24,7 +25,16 @@ function SubtaskRow({ subtask, onToggle, onDelete }) {
 
 function TaskCard({ task, project, onEdit, onDelete, onToggle, onToggleSubtask, onDeleteSubtask }) {
   const [expanded, setExpanded] = useState(false);
+  const [completing, setCompleting] = useState(false);
   const rel = getRelativeLabel(task.dueDate);
+
+  const handleToggle = () => {
+    if (task.status !== 'completed') {
+      setCompleting(true);
+      setTimeout(() => setCompleting(false), 350);
+    }
+    onToggle();
+  };
   const pri = PRIORITIES[task.priority];
   const st  = TASK_STATUSES[task.status];
   const done = task.status === 'completed' || task.status === 'cancelled';
@@ -40,7 +50,7 @@ function TaskCard({ task, project, onEdit, onDelete, onToggle, onToggleSubtask, 
       <div className="p-4">
         <div className="flex items-start gap-3">
           {/* Checkbox */}
-          <button onClick={onToggle} className="mt-0.5 shrink-0 text-slate-300 hover:text-emerald-500 transition-colors">
+          <button onClick={handleToggle} className="mt-0.5 shrink-0 text-slate-300 hover:text-emerald-500 transition-colors">
             {task.status === 'completed'
               ? <CheckCircle2 size={20} className="text-emerald-500" />
               : <Square size={20} />}
@@ -49,8 +59,8 @@ function TaskCard({ task, project, onEdit, onDelete, onToggle, onToggleSubtask, 
           {/* Content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-start gap-2 flex-wrap">
-              <h3 className={`text-sm font-semibold flex-1 min-w-0 ${done ? 'line-through text-slate-400' : 'text-slate-900'}`}>
-                {task.title}
+              <h3 className={`text-sm font-semibold flex-1 min-w-0 transition-opacity duration-300 ${done ? 'line-through text-slate-400' : 'text-slate-900'} ${completing ? 'opacity-60' : ''}`}>
+                <span className={`task-title-strike${completing ? ' striking' : ''}`}>{task.title}</span>
               </h3>
               <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${pri?.bgClass}`}>{pri?.label}</span>
@@ -114,6 +124,22 @@ export default function TaskList() {
     tasks, projects, taskFilters, setTaskFilters,
     openModal, deleteTask, toggleTaskDone, toggleSubtask, deleteSubtask
   } = useApp();
+  const { showToast } = useToast();
+
+  const handleToggleTask = (t) => {
+    if (t.status !== 'completed') {
+      showToast('✓ משימה הושלמה');
+      if (t.projectId) {
+        const projTasks = tasks.filter(x => x.projectId === t.projectId);
+        const doneCnt = projTasks.filter(x => x.status === 'completed').length;
+        if (doneCnt === projTasks.length - 1) {
+          const proj = projects.find(p => p.id === t.projectId);
+          if (proj) setTimeout(() => showToast(`🎉 הפרויקט ${proj.name} הושלם!`, { type: 'success', duration: 4000 }), 500);
+        }
+      }
+    }
+    toggleTaskDone(t.id);
+  };
 
   const [showFilters, setShowFilters] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
@@ -264,7 +290,7 @@ export default function TaskList() {
               project={getProject(t.projectId)}
               onEdit={() => openModal('task','edit',t)}
               onDelete={() => setConfirmDelete(t.id)}
-              onToggle={() => toggleTaskDone(t.id)}
+              onToggle={() => handleToggleTask(t)}
               onToggleSubtask={toggleSubtask}
               onDeleteSubtask={deleteSubtask}
             />

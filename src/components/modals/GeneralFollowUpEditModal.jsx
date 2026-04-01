@@ -16,6 +16,12 @@ export default function GeneralFollowUpEditModal() {
   const [note,   setNote]   = useState(gf.note   || '');
   const [status, setStatus] = useState(gf.status || 'pending');
   const [errors, setErrors] = useState({});
+  const [isExiting, setIsExiting] = useState(false);
+
+  const handleClose = () => {
+    setIsExiting(true);
+    setTimeout(closeModal, 200);
+  };
 
   useEffect(() => {
     const g = modal?.data || {};
@@ -42,12 +48,12 @@ export default function GeneralFollowUpEditModal() {
       note: note.trim(),
       status,
     });
-    closeModal();
+    handleClose();
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={closeModal}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md" onClick={e => e.stopPropagation()}>
+    <div className={`modal-backdrop fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4${isExiting ? ' exiting' : ''}`} onClick={handleClose}>
+      <div className={`modal-panel bg-white rounded-2xl shadow-2xl w-full max-w-md${isExiting ? ' exiting' : ''}`} onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
           <div className="flex items-center gap-2">
@@ -56,7 +62,7 @@ export default function GeneralFollowUpEditModal() {
             </div>
             <h2 className="font-bold text-slate-900 text-lg">עריכת פולואו-אפ כללי</h2>
           </div>
-          <button onClick={closeModal} className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 transition-colors">
+          <button onClick={handleClose} className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 transition-colors">
             <X size={18} />
           </button>
         </div>
@@ -127,7 +133,7 @@ export default function GeneralFollowUpEditModal() {
           <div className="flex gap-3 pt-1">
             <button
               type="button"
-              onClick={closeModal}
+              onClick={handleClose}
               className="flex-1 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
             >
               ביטול

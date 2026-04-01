@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Bell, Edit2, Calendar, ChevronDown, ChevronUp, Star, Trash2 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { useToast } from '../context/ToastContext';
 import { PRIORITIES, TASK_STATUSES } from '../utils/constants';
 import { formatDateHe, getRelativeLabel, today } from '../utils/dateUtils';
 
@@ -186,6 +187,7 @@ function GeneralFollowUpCard({ gf, project, isNext, onEdit, onDelete }) {
 
 export default function FollowUps() {
   const { tasks, projects, generalFollowUps, deleteGeneralFollowUp, updateTask, openModal } = useApp();
+  const { showToast } = useToast();
   const [tab, setTab] = useState('upcoming');
 
   const todayStr = today();
@@ -343,7 +345,7 @@ export default function FollowUps() {
                   project={getProject(item.obj.projectId)}
                   isNext={nextItem?.kind === 'task' && item.obj.id === nextItem.id}
                   onEdit={() => openModal('task','edit',item.obj)}
-                  onDelete={() => updateTask(item.obj.id, { followUp: null })}
+                  onDelete={() => { updateTask(item.obj.id, { followUp: null }); showToast('פולואו-אפ נמחק'); }}
                 />
               ) : (
                 <GeneralFollowUpCard
@@ -352,7 +354,7 @@ export default function FollowUps() {
                   project={getProject(item.obj.projectId)}
                   isNext={nextItem?.kind === 'general' && item.obj.id === nextItem.id}
                   onEdit={() => openModal('general-followup-edit', 'edit', item.obj)}
-                  onDelete={() => deleteGeneralFollowUp(item.obj.id)}
+                  onDelete={() => { deleteGeneralFollowUp(item.obj.id); showToast('פולואו-אפ נמחק'); }}
                 />
               )
             )

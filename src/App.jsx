@@ -1,5 +1,6 @@
 import React from 'react';
 import { AppProvider, useApp } from './context/AppContext';
+import { ToastProvider } from './context/ToastContext';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import ProjectList from './components/ProjectList';
@@ -12,6 +13,7 @@ import ProjectModal from './components/modals/ProjectModal';
 import TaskModal from './components/modals/TaskModal';
 import FollowUpModal from './components/modals/FollowUpModal';
 import GeneralFollowUpEditModal from './components/modals/GeneralFollowUpEditModal';
+import ToastContainer from './components/ToastContainer';
 
 function AppContent() {
   const { currentPage, modal } = useApp();
@@ -32,21 +34,24 @@ function AppContent() {
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden" dir="rtl">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto">
+      <main key={currentPage} className="page-fade flex-1 overflow-y-auto">
         {renderPage()}
       </main>
       {modal?.type === 'project'  && <ProjectModal />}
       {modal?.type === 'task'     && <TaskModal />}
       {modal?.type === 'followup' && <FollowUpModal />}
       {modal?.type === 'general-followup-edit' && <GeneralFollowUpEditModal />}
+      <ToastContainer />
     </div>
   );
 }
 
 export default function App() {
   return (
-    <AppProvider>
-      <AppContent />
-    </AppProvider>
+    <ToastProvider>
+      <AppProvider>
+        <AppContent />
+      </AppProvider>
+    </ToastProvider>
   );
 }
