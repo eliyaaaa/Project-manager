@@ -98,11 +98,11 @@ export default function Dashboard() {
 
   // Recurring topics: group recurring tasks by recurringTopic
   const recurringGroups = (() => {
-    const recurring = tasks.filter(t => t.taskType === 'recurring');
+    const recurring = tasks.filter(t => t.taskType === 'recurring' && t.recurringTopic);
     if (!recurring.length) return [];
     const map = {};
     recurring.forEach(t => {
-      const topic = t.recurringTopic || '(ללא שם נושא)';
+      const topic = t.recurringTopic;
       if (!map[topic]) map[topic] = [];
       map[topic].push(t);
     });
@@ -116,7 +116,7 @@ export default function Dashboard() {
           return a.dueDate.localeCompare(b.dueDate);
         });
       return { topic, next: open[0] || null };
-    }).sort((a, b) => a.topic.localeCompare(b.topic));
+    }).filter(g => g.next !== null).sort((a, b) => a.topic.localeCompare(b.topic));
   })();
 
   const byStatus = (s) => projects.filter(p => p.status === s).length;
