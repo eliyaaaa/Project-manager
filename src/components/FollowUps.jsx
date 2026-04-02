@@ -87,7 +87,7 @@ function FollowUpCard({ task, project, isNext, onEdit, onDelete }) {
               <Edit2 size={14} />
             </button>
             <button
-              onClick={() => { if (window.confirm('האם למחוק פולואו-אפ זה?')) onDelete(); }}
+              onClick={onDelete}
               className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
             >
               <Trash2 size={14} />
@@ -173,7 +173,7 @@ function GeneralFollowUpCard({ gf, project, isNext, onEdit, onDelete }) {
               <Edit2 size={14} />
             </button>
             <button
-              onClick={() => { if (window.confirm('האם למחוק פולואו-אפ זה?')) onDelete(); }}
+              onClick={onDelete}
               className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
             >
               <Trash2 size={14} />
@@ -189,6 +189,7 @@ export default function FollowUps() {
   const { tasks, projects, generalFollowUps, deleteGeneralFollowUp, updateTask, openModal } = useApp();
   const { showToast } = useToast();
   const [tab, setTab] = useState('upcoming');
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
   const todayStr = today();
   const getProject = (id) => projects.find(p => p.id === id);
@@ -345,7 +346,7 @@ export default function FollowUps() {
                   project={getProject(item.obj.projectId)}
                   isNext={nextItem?.kind === 'task' && item.obj.id === nextItem.id}
                   onEdit={() => openModal('task','edit',item.obj)}
-                  onDelete={() => { updateTask(item.obj.id, { followUp: null }); showToast('פולואו-אפ נמחק'); }}
+                  onDelete={() => setConfirmDelete(() => () => { updateTask(item.obj.id, { followUp: null }); showToast('פולואו-אפ נמחק'); })}
                 />
               ) : (
                 <GeneralFollowUpCard
@@ -354,11 +355,25 @@ export default function FollowUps() {
                   project={getProject(item.obj.projectId)}
                   isNext={nextItem?.kind === 'general' && item.obj.id === nextItem.id}
                   onEdit={() => openModal('general-followup-edit', 'edit', item.obj)}
-                  onDelete={() => { deleteGeneralFollowUp(item.obj.id); showToast('פולואו-אפ נמחק'); }}
+                  onDelete={() => setConfirmDelete(() => () => { deleteGeneralFollowUp(item.obj.id); showToast('פולואו-אפ נמחק'); })}
                 />
               )
             )
           }
+        </div>
+      )}
+
+      {/* Confirm delete */}
+      {confirmDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl p-6 max-w-sm w-full">
+            <h3 className="font-bold text-slate-900 text-lg mb-2">מחיקת פולואו-אפ</h3>
+            <p className="text-slate-600 text-sm">האם אתה בטוח שברצונך למחוק פולואו-אפ זה?</p>
+            <div className="flex gap-3 mt-5 justify-end">
+              <button onClick={() => setConfirmDelete(null)} className="px-4 py-2 text-sm border border-slate-200 rounded-lg hover:bg-slate-50">ביטול</button>
+              <button onClick={() => { confirmDelete(); setConfirmDelete(null); }} className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">מחק</button>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -18,9 +18,9 @@ Project Manager is a single-page React application that gives you a unified work
 - Recurring topics: grouped recurring tasks, each showing its next open item
 - Projects overview: progress bars, status badges, and open task counts
 
-**Projects** — A color-coded card grid with per-project progress, status, description, and a "next task" preview. Drill into any project to see its full task list with inline completion toggles.
+**Projects** — A color-coded card grid with per-project progress, status, description, and a "next task" preview. Drill into any project to see its full task list with inline completion toggles and a collapsible completed-tasks accordion.
 
-**Tasks** — Full task list with filtering by project, priority, status, and free-text search. Tasks support subtasks, due dates, priority levels, assignees, notes, and an embedded follow-up date.
+**Tasks** — Full task list with filtering by project, priority, status, and free-text search. Tasks support subtasks, due dates, priority levels, assignees, notes, and an embedded follow-up date. Completed tasks are grouped into a collapsible "משימות שהושלמו" accordion at the bottom of the list, closed by default.
 
 **Task types**:
 - `regular` — standalone task
@@ -30,7 +30,7 @@ Project Manager is a single-page React application that gives you a unified work
 **Follow-Ups** — Dedicated screen for two follow-up stores:
 - Task follow-ups (attached to an existing task)
 - General follow-ups (standalone reminders with title, date, notes, and status)
-- Both support create, edit (pencil icon), and delete (trash icon with confirmation)
+- Both support create, edit (pencil icon), and delete (trash icon with custom confirmation modal)
 
 **Calendar** — Monthly calendar view showing tasks by due date.
 
@@ -154,6 +154,9 @@ src/
 - [x] Supabase client initialized — cloud database connected
 - [x] Database tables created in Supabase (projects, tasks, general_follow_ups)
 - [x] App fully wired to Supabase — all data reads and writes go through the cloud
+- [x] Completed tasks accordion in All Tasks and Project Detail views (closed by default)
+- [x] Unified custom deletion modal for tasks and follow-ups (context-aware text, no browser alerts)
+- [x] Sidebar streamlined — removed "Open Tasks" link, consistent 5-item navigation
 - [ ] Advanced task filtering and saved filter presets
 - [ ] Multi-user support and real-time syncing
 
