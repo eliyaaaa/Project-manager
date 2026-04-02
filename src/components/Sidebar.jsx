@@ -47,10 +47,10 @@ export default function Sidebar() {
             <button
               key={id}
               onClick={() => setCurrentPage(id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
+              className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all duration-150 ${
                 active
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'
+                  ? 'bg-indigo-100 text-indigo-800 rounded-l-lg border-r-[3px] border-indigo-500'
+                  : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100 rounded-lg'
               }`}
             >
               <Icon size={18} />

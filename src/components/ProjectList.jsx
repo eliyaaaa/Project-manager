@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Edit2, Trash2, FolderOpen, MoreVertical, CheckSquare } from 'lucide-react';
+import { Plus, Edit2, Trash2, FolderOpen, MoreVertical, CheckSquare, ArrowLeft } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { PROJECT_STATUSES } from '../utils/constants';
 import { formatDate } from '../utils/dateUtils';
@@ -19,6 +19,14 @@ function ProjectCard({ project, tasks, onEdit, onDelete, onNavigate }) {
   const active   = pTasks.filter(t => t.status !== 'completed' && t.status !== 'cancelled').length;
   const pct      = pTasks.length ? Math.round((done / pTasks.length) * 100) : 0;
   const st       = PROJECT_STATUSES[project.status];
+  const nextTask = pTasks
+    .filter(t => t.status !== 'completed' && t.status !== 'cancelled')
+    .sort((a, b) => {
+      if (!a.dueDate && !b.dueDate) return 0;
+      if (!a.dueDate) return 1;
+      if (!b.dueDate) return -1;
+      return a.dueDate.localeCompare(b.dueDate);
+    })[0] || null;
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col cursor-pointer" onClick={onNavigate}>
@@ -68,6 +76,16 @@ function ProjectCard({ project, tasks, onEdit, onDelete, onNavigate }) {
         {project.description && (
           <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{project.description}</p>
         )}
+
+        {/* Next task */}
+        <div className="flex items-center gap-1.5 text-xs min-w-0">
+          <ArrowLeft size={11} className="text-slate-400 shrink-0" />
+          {nextTask ? (
+            <span className="text-slate-600 font-medium truncate">הבא: {nextTask.title}</span>
+          ) : (
+            <span className="text-slate-300">אין משימות פתוחות</span>
+          )}
+        </div>
 
         {/* Progress */}
         <div className="mt-auto space-y-1.5">
