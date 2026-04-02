@@ -45,14 +45,18 @@ Project Manager is a single-page React application that gives you a unified work
 - Active sidebar item highlighted with an indigo accent border
 
 ### Data
-All data lives in `localStorage` under three keys:
-| Key | Contents |
-|-----|----------|
-| `pm_projects` | Projects array |
-| `pm_tasks` | Tasks array (includes subtasks + follow-up) |
-| `pm_general_followups` | Standalone follow-ups array |
+Data is stored in **Supabase** (cloud Postgres database). The Supabase client is initialized in `src/utils/supabaseClient.js` and can be imported into any component:
 
-No server. No account. No sync. Your data stays on your machine.
+```js
+import { supabase } from '../utils/supabaseClient'
+```
+
+Connection credentials are stored in `.env.local` (gitignored — never committed):
+
+```
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
 ---
 
@@ -66,7 +70,7 @@ No server. No account. No sync. Your data stays on your machine.
 | Icons | lucide-react |
 | State Management | React Context API (`AppContext` + `ToastContext`) |
 | Routing | Manual state-based routing (`currentPage` in context) |
-| Persistence | `localStorage` (no backend) |
+| Persistence | Supabase (Postgres cloud DB) |
 | Language | JavaScript (JSX) |
 | Date Utilities | Custom (`dateUtils.js` — no date-fns or dayjs) |
 
@@ -123,7 +127,8 @@ src/
 │       └── GeneralFollowUpEditModal.jsx  # Edit standalone follow-up
 └── utils/
     ├── constants.js                 # Status maps, priorities, colors
-    └── dateUtils.js                 # Date helpers (today, diff, labels, format)
+    ├── dateUtils.js                 # Date helpers (today, diff, labels, format)
+    └── supabaseClient.js            # Supabase client (initialized, ready to use)
 ```
 
 ---
@@ -138,7 +143,7 @@ src/
 - [x] Calendar view and Review page
 - [x] Modal animations, page transitions, and toast notifications
 - [x] Progressive disclosure in task creation form
-- [ ] **Next:** Integrate Supabase for persistent cloud storage
+- [x] Supabase client initialized — cloud database connected
 - [ ] Advanced task filtering and saved filter presets
 - [ ] Multi-user support and real-time syncing
 
@@ -156,4 +161,4 @@ src/
 
 **RTL-first.** Every layout, icon placement, and alignment was designed for right-to-left Hebrew reading from the start — not retrofitted.
 
-**Zero server dependency.** Your data is yours. It lives on your device and works offline, always.
+**Cloud-backed.** Data is stored in Supabase (Postgres), making it persistent, secure, and accessible from any device.
