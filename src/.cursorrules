@@ -1,0 +1,18 @@
+# Project Rules & Context Alignment
+
+## Mandatory Initialization
+* Before starting any task, read CLAUDE.md and README.md to understand the current tech stack, design principles, and project progress.
+
+## Design & Aesthetic Standards
+* Maintain a minimalist, high-end UI/UX.
+* Follow the "White Space" and clear visual hierarchy rules.
+* Use Tailwind CSS for all styling.
+* Always use custom internal Modal components for confirmations (e.g., deletions). NEVER use native browser alert() or confirm().
+
+## Logical Consistency
+* Ensure data state is synced across all views (e.g., All Tasks and Project views must show the same status for shared tasks).
+* Task deletion must be global across the entire application.
+
+## Development Workflow
+* Always work in a separate feature branch for new tasks (feat/...).
+* Update CLAUDE.md and README.md after completing a major feature or logic change.
