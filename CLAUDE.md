@@ -31,6 +31,17 @@
 
 ---
 
+## Backend & Environment
+
+- **Database:** Supabase (cloud Postgres). Tables: `projects`, `tasks`, `general_follow_ups`.
+- **Client:** `src/utils/supabaseClient.js` — import `supabase` from here for any DB operation.
+- **Environment variables** (stored in `.env.local`, never committed):
+  - `VITE_SUPABASE_URL` — the project URL from Supabase → Settings → API
+  - `VITE_SUPABASE_ANON_KEY` — the anon/public key from the same page
+- All data is read and written through Supabase. localStorage is no longer used.
+
+---
+
 ## Documentation Rule
 
 - Keep `README.md` up to date with every significant change we make to the project.

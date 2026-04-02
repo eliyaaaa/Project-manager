@@ -5,11 +5,11 @@ import { isOverdue, isDueToday, today } from '../utils/dateUtils';
 
 const NAV = [
   { id: 'dashboard', label: 'לוח בקרה',     icon: LayoutDashboard },
-  { id: 'review',    label: 'משימות פתוחות', icon: ClipboardList },
+  { id: 'review',    label: 'רשימת משימות פתוחות', icon: ClipboardList },
   { id: 'projects',  label: 'פרויקטים',    icon: FolderKanban    },
   { id: 'followups', label: 'פולואו-אפ',   icon: Bell            },
   { id: 'calendar',  label: 'לוז',         icon: CalendarDays    },
-  { id: 'tasks',     label: 'משימות',      icon: ListChecks      },
+  { id: 'tasks',     label: 'כל המשימות',  icon: ListChecks      },
 ];
 
 export default function Sidebar() {
@@ -72,7 +72,7 @@ export default function Sidebar() {
 
       {/* Footer */}
       <div className="px-5 py-4 border-t border-slate-700/60">
-        <p className="text-slate-500 text-xs text-center">נתונים נשמרים מקומית</p>
+        <p className="text-slate-500 text-xs text-center">נתונים נשמרים בענן ☁️</p>
       </div>
     </aside>
   );

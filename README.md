@@ -51,12 +51,20 @@ Data is stored in **Supabase** (cloud Postgres database). The Supabase client is
 import { supabase } from '../utils/supabaseClient'
 ```
 
-Connection credentials are stored in `.env.local` (gitignored — never committed):
+All reads and writes go through Supabase — localStorage is no longer used.
+
+---
+
+## Environment Variables
+
+Connection credentials are stored in a file called `.env.local` at the root of the project. This file is **gitignored and never committed** — you must create it manually on each machine.
 
 ```
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
+
+To find these values: go to your Supabase project → **Settings** → **API**. Copy the **Project URL** and the **anon / public** key.
 
 ---
 
@@ -144,6 +152,8 @@ src/
 - [x] Modal animations, page transitions, and toast notifications
 - [x] Progressive disclosure in task creation form
 - [x] Supabase client initialized — cloud database connected
+- [x] Database tables created in Supabase (projects, tasks, general_follow_ups)
+- [x] App fully wired to Supabase — all data reads and writes go through the cloud
 - [ ] Advanced task filtering and saved filter presets
 - [ ] Multi-user support and real-time syncing
 

@@ -16,7 +16,18 @@ import GeneralFollowUpEditModal from './components/modals/GeneralFollowUpEditMod
 import ToastContainer from './components/ToastContainer';
 
 function AppContent() {
-  const { currentPage, modal } = useApp();
+  const { currentPage, modal, loading } = useApp();
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-slate-50" dir="rtl">
+        <div className="text-center space-y-3">
+          <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-sm text-slate-400">טוען נתונים...</p>
+        </div>
+      </div>
+    );
+  }
 
   const renderPage = () => {
     switch (currentPage) {

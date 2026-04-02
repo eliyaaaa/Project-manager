@@ -1,126 +1,241 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { supabase } from '../utils/supabaseClient';
 
 const AppContext = createContext(null);
 
 const genId = () => `${Date.now()}_${Math.random().toString(36).slice(2,9)}`;
 
-const load = (key, fallback) => {
-  try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
-  catch { return fallback; }
-};
+// Convert Supabase rows (snake_case) → app objects (camelCase)
+const toProject = (row) => ({
+  id:          row.id,
+  name:        row.name,
+  description: row.description,
+  status:      row.status,
+  color:       row.color,
+  createdAt:   row.created_at,
+  updatedAt:   row.updated_at,
+});
 
-const DEMO_COLOR = '#6366f1';
-const DEMO_PROJECTS = [
-  { id: 'p1', name: 'אתר חברה', description: 'פיתוח ועיצוב מחדש של אתר החברה', status: 'active', color: '#6366f1', createdAt: '2026-03-01T10:00:00Z', updatedAt: '2026-03-20T10:00:00Z' },
-  { id: 'p2', name: 'אפליקציה מובייל', description: 'פיתוח אפליקציה ל-iOS ו-Android', status: 'active', color: '#8b5cf6', createdAt: '2026-02-15T10:00:00Z', updatedAt: '2026-03-18T10:00:00Z' },
-  { id: 'p3', name: 'דוח שנתי 2025', description: 'הכנת הדוח השנתי של החברה', status: 'completed', color: '#22c55e', createdAt: '2026-01-01T10:00:00Z', updatedAt: '2026-03-10T10:00:00Z' },
-];
-const DEMO_TASKS = [
-  { id: 't1', projectId: 'p1', title: 'עיצוב דף הבית', description: 'יצירת מוקאפ לדף הבית החדש', dueDate: '2026-03-29', priority: 'high', status: 'in-progress', subtasks: [{ id: 's1', title: 'סקיצה ראשונית', completed: true },{ id: 's2', title: 'משוב מהלקוח', completed: false }], createdAt: '2026-03-10T10:00:00Z', updatedAt: '2026-03-20T10:00:00Z' },
-  { id: 't2', projectId: 'p1', title: 'פיתוח ממשק ניווט', description: 'בניית תפריט ניווט רספונסיבי', dueDate: '2026-04-05', priority: 'medium', status: 'todo', subtasks: [], createdAt: '2026-03-12T10:00:00Z', updatedAt: '2026-03-12T10:00:00Z' },
-  { id: 't3', projectId: 'p2', title: 'מסך כניסה למשתמש', description: 'הרשמה והתחברות עם אימות דו-שלבי', dueDate: '2026-03-28', priority: 'high', status: 'todo', subtasks: [{ id: 's3', title: 'UI Design', completed: true },{ id: 's4', title: 'Backend API', completed: false },{ id: 's5', title: 'Testing', completed: false }], createdAt: '2026-03-05T10:00:00Z', updatedAt: '2026-03-05T10:00:00Z' },
-  { id: 't4', projectId: 'p2', title: 'דחיפת התראות', description: 'מערכת push notifications', dueDate: '2026-04-15', priority: 'low', status: 'todo', subtasks: [], createdAt: '2026-03-08T10:00:00Z', updatedAt: '2026-03-08T10:00:00Z' },
-  { id: 't5', projectId: 'p3', title: 'סיכום נתונים פיננסיים', description: '', dueDate: '2026-03-15', priority: 'high', status: 'completed', subtasks: [], createdAt: '2026-01-20T10:00:00Z', updatedAt: '2026-03-14T10:00:00Z' },
-];
+const toTask = (row) => ({
+  id:             row.id,
+  projectId:      row.project_id,
+  title:          row.title,
+  description:    row.description,
+  dueDate:        row.due_date,
+  priority:       row.priority,
+  status:         row.status,
+  taskType:       row.task_type,
+  recurringTopic: row.recurring_topic,
+  assignee:       row.assignee,
+  notes:          row.notes,
+  subtasks:       row.subtasks || [],
+  followUp:       row.follow_up,
+  createdAt:      row.created_at,
+  updatedAt:      row.updated_at,
+});
+
+const toGeneralFollowUp = (row) => ({
+  id:        row.id,
+  title:     row.title,
+  date:      row.date,
+  note:      row.note,
+  status:    row.status,
+  createdAt: row.created_at,
+});
 
 export function AppProvider({ children }) {
-  const [projects, setProjects] = useState(() => load('pm_projects', DEMO_PROJECTS));
-  const [tasks, setTasks]       = useState(() => load('pm_tasks', DEMO_TASKS));
-  const [generalFollowUps, setGeneralFollowUps] = useState(() => load('pm_general_followups', []));
-  const [currentPage, setCurrentPage] = useState('dashboard');
-  const [modal, setModal]       = useState(null); // { type, mode, data, defaults }
+  const [projects,         setProjects]         = useState([]);
+  const [tasks,            setTasks]            = useState([]);
+  const [generalFollowUps, setGeneralFollowUps] = useState([]);
+  const [loading,          setLoading]          = useState(true);
+  const [currentPage,      setCurrentPage]      = useState('dashboard');
+  const [modal,            setModal]            = useState(null);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
-  const [taskFilters, setTaskFilters] = useState({ search: '', projectId: '', priority: '', status: '' });
-  const [projectFilter, setProjectFilter] = useState('');
+  const [taskFilters,      setTaskFilters]      = useState({ search: '', projectId: '', priority: '', status: '' });
+  const [projectFilter,    setProjectFilter]    = useState('');
 
-  useEffect(() => { localStorage.setItem('pm_projects',          JSON.stringify(projects));          }, [projects]);
-  useEffect(() => { localStorage.setItem('pm_tasks',             JSON.stringify(tasks));             }, [tasks]);
-  useEffect(() => { localStorage.setItem('pm_general_followups', JSON.stringify(generalFollowUps)); }, [generalFollowUps]);
+  // Load all data from Supabase on mount
+  useEffect(() => {
+    async function fetchAll() {
+      setLoading(true);
+      const [{ data: p }, { data: t }, { data: g }] = await Promise.all([
+        supabase.from('projects').select('*').order('created_at', { ascending: false }),
+        supabase.from('tasks').select('*').order('created_at', { ascending: false }),
+        supabase.from('general_follow_ups').select('*').order('created_at', { ascending: false }),
+      ]);
+      setProjects((p || []).map(toProject));
+      setTasks((t || []).map(toTask));
+      setGeneralFollowUps((g || []).map(toGeneralFollowUp));
+      setLoading(false);
+    }
+    fetchAll();
+  }, []);
 
   // --- Projects ---
-  const addProject = useCallback((data) => {
-    const p = { id: genId(), ...data, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-    setProjects(prev => [p, ...prev]);
-    return p;
+  const addProject = useCallback(async (data) => {
+    const now = new Date().toISOString();
+    const row = {
+      id:          genId(),
+      name:        data.name,
+      description: data.description || null,
+      status:      data.status || 'active',
+      color:       data.color || null,
+      created_at:  now,
+      updated_at:  now,
+    };
+    const { data: inserted, error } = await supabase.from('projects').insert(row).select().single();
+    if (!error) setProjects(prev => [toProject(inserted), ...prev]);
+    return inserted ? toProject(inserted) : null;
   }, []);
 
-  const updateProject = useCallback((id, data) => {
-    setProjects(prev => prev.map(p => p.id === id ? { ...p, ...data, updatedAt: new Date().toISOString() } : p));
+  const updateProject = useCallback(async (id, data) => {
+    const now = new Date().toISOString();
+    const row = {
+      ...(data.name        !== undefined && { name:        data.name }),
+      ...(data.description !== undefined && { description: data.description }),
+      ...(data.status      !== undefined && { status:      data.status }),
+      ...(data.color       !== undefined && { color:       data.color }),
+      updated_at: now,
+    };
+    const { error } = await supabase.from('projects').update(row).eq('id', id);
+    if (!error) setProjects(prev => prev.map(p => p.id === id ? { ...p, ...data, updatedAt: now } : p));
   }, []);
 
-  const deleteProject = useCallback((id) => {
-    setProjects(prev => prev.filter(p => p.id !== id));
-    setTasks(prev => prev.filter(t => t.projectId !== id));
+  const deleteProject = useCallback(async (id) => {
+    // Delete tasks belonging to this project, then delete the project
+    await supabase.from('tasks').delete().eq('project_id', id);
+    const { error } = await supabase.from('projects').delete().eq('id', id);
+    if (!error) {
+      setProjects(prev => prev.filter(p => p.id !== id));
+      setTasks(prev => prev.filter(t => t.projectId !== id));
+    }
   }, []);
 
   // --- Tasks ---
-  const addTask = useCallback((data) => {
-    const t = { id: genId(), ...data, subtasks: data.subtasks || [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-    setTasks(prev => [t, ...prev]);
-    return t;
+  const addTask = useCallback(async (data) => {
+    const now = new Date().toISOString();
+    const row = {
+      id:              genId(),
+      project_id:      data.projectId      || null,
+      title:           data.title,
+      description:     data.description    || null,
+      due_date:        data.dueDate        || null,
+      priority:        data.priority       || 'medium',
+      status:          data.status         || 'todo',
+      task_type:       data.taskType       || 'regular',
+      recurring_topic: data.recurringTopic || null,
+      assignee:        data.assignee       || null,
+      notes:           data.notes          || null,
+      subtasks:        data.subtasks       || [],
+      follow_up:       data.followUp       || null,
+      created_at:      now,
+      updated_at:      now,
+    };
+    const { data: inserted, error } = await supabase.from('tasks').insert(row).select().single();
+    if (!error) setTasks(prev => [toTask(inserted), ...prev]);
+    return inserted ? toTask(inserted) : null;
   }, []);
 
-  const updateTask = useCallback((id, data) => {
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, ...data, updatedAt: new Date().toISOString() } : t));
+  const updateTask = useCallback(async (id, data) => {
+    const now = new Date().toISOString();
+    const row = {
+      ...(data.projectId      !== undefined && { project_id:      data.projectId }),
+      ...(data.title          !== undefined && { title:           data.title }),
+      ...(data.description    !== undefined && { description:     data.description }),
+      ...(data.dueDate        !== undefined && { due_date:        data.dueDate }),
+      ...(data.priority       !== undefined && { priority:        data.priority }),
+      ...(data.status         !== undefined && { status:          data.status }),
+      ...(data.taskType       !== undefined && { task_type:       data.taskType }),
+      ...(data.recurringTopic !== undefined && { recurring_topic: data.recurringTopic }),
+      ...(data.assignee       !== undefined && { assignee:        data.assignee }),
+      ...(data.notes          !== undefined && { notes:           data.notes }),
+      ...(data.subtasks       !== undefined && { subtasks:        data.subtasks }),
+      ...(data.followUp       !== undefined && { follow_up:       data.followUp }),
+      updated_at: now,
+    };
+    const { error } = await supabase.from('tasks').update(row).eq('id', id);
+    if (!error) setTasks(prev => prev.map(t => t.id === id ? { ...t, ...data, updatedAt: now } : t));
   }, []);
 
-  const deleteTask = useCallback((id) => {
-    setTasks(prev => prev.filter(t => t.id !== id));
+  const deleteTask = useCallback(async (id) => {
+    const { error } = await supabase.from('tasks').delete().eq('id', id);
+    if (!error) setTasks(prev => prev.filter(t => t.id !== id));
   }, []);
 
-  const toggleTaskDone = useCallback((id) => {
-    setTasks(prev => prev.map(t =>
-      t.id === id ? { ...t, status: t.status === 'completed' ? 'todo' : 'completed', updatedAt: new Date().toISOString() } : t
-    ));
-  }, []);
+  const toggleTaskDone = useCallback(async (id) => {
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+    const newStatus = task.status === 'completed' ? 'todo' : 'completed';
+    const now = new Date().toISOString();
+    const { error } = await supabase.from('tasks').update({ status: newStatus, updated_at: now }).eq('id', id);
+    if (!error) setTasks(prev => prev.map(t => t.id === id ? { ...t, status: newStatus, updatedAt: now } : t));
+  }, [tasks]);
 
-  // --- Subtasks ---
-  const addSubtask = useCallback((taskId, title) => {
+  // --- Subtasks (stored as JSON inside the task row) ---
+  const addSubtask = useCallback(async (taskId, title) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
     const s = { id: genId(), title, completed: false };
-    setTasks(prev => prev.map(t => t.id === taskId ? { ...t, subtasks: [...(t.subtasks||[]), s] } : t));
-  }, []);
+    await updateTask(taskId, { subtasks: [...(task.subtasks || []), s] });
+  }, [tasks, updateTask]);
 
-  const toggleSubtask = useCallback((taskId, subtaskId) => {
-    setTasks(prev => prev.map(t =>
-      t.id === taskId
-        ? { ...t, subtasks: t.subtasks.map(s => s.id === subtaskId ? { ...s, completed: !s.completed } : s) }
-        : t
-    ));
-  }, []);
+  const toggleSubtask = useCallback(async (taskId, subtaskId) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+    const newSubtasks = task.subtasks.map(s => s.id === subtaskId ? { ...s, completed: !s.completed } : s);
+    await updateTask(taskId, { subtasks: newSubtasks });
+  }, [tasks, updateTask]);
 
-  const updateSubtask = useCallback((taskId, subtaskId, title) => {
-    setTasks(prev => prev.map(t =>
-      t.id === taskId
-        ? { ...t, subtasks: t.subtasks.map(s => s.id === subtaskId ? { ...s, title } : s) }
-        : t
-    ));
-  }, []);
+  const updateSubtask = useCallback(async (taskId, subtaskId, title) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+    const newSubtasks = task.subtasks.map(s => s.id === subtaskId ? { ...s, title } : s);
+    await updateTask(taskId, { subtasks: newSubtasks });
+  }, [tasks, updateTask]);
 
-  const deleteSubtask = useCallback((taskId, subtaskId) => {
-    setTasks(prev => prev.map(t =>
-      t.id === taskId ? { ...t, subtasks: t.subtasks.filter(s => s.id !== subtaskId) } : t
-    ));
-  }, []);
+  const deleteSubtask = useCallback(async (taskId, subtaskId) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+    const newSubtasks = task.subtasks.filter(s => s.id !== subtaskId);
+    await updateTask(taskId, { subtasks: newSubtasks });
+  }, [tasks, updateTask]);
 
   // --- General follow-ups ---
-  const addGeneralFollowUp = useCallback((data) => {
-    const gf = { id: genId(), ...data, createdAt: new Date().toISOString() };
-    setGeneralFollowUps(prev => [...prev, gf]);
+  const addGeneralFollowUp = useCallback(async (data) => {
+    const now = new Date().toISOString();
+    const row = {
+      id:         genId(),
+      title:      data.title  || null,
+      date:       data.date,
+      note:       data.note   || null,
+      status:     data.status || 'pending',
+      created_at: now,
+    };
+    const { data: inserted, error } = await supabase.from('general_follow_ups').insert(row).select().single();
+    if (!error) setGeneralFollowUps(prev => [...prev, toGeneralFollowUp(inserted)]);
   }, []);
 
-  const updateGeneralFollowUp = useCallback((id, data) => {
-    setGeneralFollowUps(prev => prev.map(gf => gf.id === id ? { ...gf, ...data } : gf));
+  const updateGeneralFollowUp = useCallback(async (id, data) => {
+    const row = {
+      ...(data.title  !== undefined && { title:  data.title }),
+      ...(data.date   !== undefined && { date:   data.date }),
+      ...(data.note   !== undefined && { note:   data.note }),
+      ...(data.status !== undefined && { status: data.status }),
+    };
+    const { error } = await supabase.from('general_follow_ups').update(row).eq('id', id);
+    if (!error) setGeneralFollowUps(prev => prev.map(gf => gf.id === id ? { ...gf, ...data } : gf));
   }, []);
 
-  const deleteGeneralFollowUp = useCallback((id) => {
-    setGeneralFollowUps(prev => prev.filter(gf => gf.id !== id));
+  const deleteGeneralFollowUp = useCallback(async (id) => {
+    const { error } = await supabase.from('general_follow_ups').delete().eq('id', id);
+    if (!error) setGeneralFollowUps(prev => prev.filter(gf => gf.id !== id));
   }, []);
 
   // --- Modals ---
   const openModal  = useCallback((type, mode = 'create', data = null, defaults = {}) => setModal({ type, mode, data, defaults }), []);
   const closeModal = useCallback(() => setModal(null), []);
 
-  // --- Navigation to project detail ---
+  // --- Navigation ---
   const navigateToProject = useCallback((projectId) => {
     setSelectedProjectId(projectId);
     setCurrentPage('project-detail');
@@ -128,7 +243,7 @@ export function AppProvider({ children }) {
 
   return (
     <AppContext.Provider value={{
-      projects, tasks, generalFollowUps,
+      projects, tasks, generalFollowUps, loading,
       addGeneralFollowUp, updateGeneralFollowUp, deleteGeneralFollowUp,
       currentPage, setCurrentPage,
       selectedProjectId, navigateToProject,
