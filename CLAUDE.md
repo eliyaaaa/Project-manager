@@ -42,6 +42,14 @@
 
 ---
 
+## Navigation & Views
+
+- **Sidebar links (in order):** לוח בקרה, פרויקטים, כל המשימות, פולואו-אפ, לוז. The "רשימת משימות פתוחות" (ReviewPage) link has been removed from the sidebar — the page still exists in the router but is not exposed.
+- **Completed tasks accordion:** Both "All Tasks" (`TaskList`) and the Project Detail view (`ProjectDetail`) show a collapsible "משימות שהושלמו" section at the bottom, closed by default. It only appears when completed tasks exist and only in the "הכל" filter tab.
+- **Deletion confirmation:** All deletions (tasks and follow-ups) use a shared-style custom UI modal — never `window.confirm`. The modal text is context-aware: tasks say "האם אתה בטוח שברצונך למחוק משימה זו?" and follow-ups say "האם אתה בטוח שברצונך למחוק פולואו-אפ זה?".
+
+---
+
 ## Documentation Rule
 
 - Keep `README.md` up to date with every significant change we make to the project.

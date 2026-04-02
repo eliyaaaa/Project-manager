@@ -1,15 +1,14 @@
 import React from 'react';
-import { LayoutDashboard, FolderKanban, ListChecks, CalendarDays, CheckCircle2, Bell, ClipboardList } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, ListChecks, CalendarDays, CheckCircle2, Bell } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { isOverdue, isDueToday, today } from '../utils/dateUtils';
 
 const NAV = [
-  { id: 'dashboard', label: 'לוח בקרה',     icon: LayoutDashboard },
-  { id: 'review',    label: 'רשימת משימות פתוחות', icon: ClipboardList },
-  { id: 'projects',  label: 'פרויקטים',    icon: FolderKanban    },
-  { id: 'followups', label: 'פולואו-אפ',   icon: Bell            },
-  { id: 'calendar',  label: 'לוז',         icon: CalendarDays    },
-  { id: 'tasks',     label: 'כל המשימות',  icon: ListChecks      },
+  { id: 'dashboard', label: 'לוח בקרה',    icon: LayoutDashboard },
+  { id: 'projects',  label: 'פרויקטים',   icon: FolderKanban    },
+  { id: 'tasks',     label: 'כל המשימות', icon: ListChecks      },
+  { id: 'followups', label: 'פולואו-אפ',  icon: Bell            },
+  { id: 'calendar',  label: 'לוז',        icon: CalendarDays    },
 ];
 
 export default function Sidebar() {

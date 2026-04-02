@@ -167,6 +167,7 @@ export default function ProjectDetail() {
 
   const [statusFilter, setStatusFilter] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [completedOpen, setCompletedOpen] = useState(false);
 
   const project = projects.find(p => p.id === selectedProjectId);
   if (!project) {
@@ -204,6 +205,11 @@ export default function ProjectDetail() {
     if (aDone !== bDone) return aDone - bDone;
     return (prioOrder[a.priority] ?? 1) - (prioOrder[b.priority] ?? 1);
   });
+
+  // When showing all tasks, split into active and completed for accordion
+  const showAccordion = statusFilter === '';
+  const activeSorted    = showAccordion ? sorted.filter(t => t.status !== 'completed') : sorted;
+  const completedSorted = showAccordion ? sorted.filter(t => t.status === 'completed') : [];
 
   const st      = PROJECT_STATUSES[project.status];
   const done    = allProjectTasks.filter(t => t.status === 'completed').length;
@@ -334,7 +340,7 @@ export default function ProjectDetail() {
         </div>
       ) : (
         <div className="space-y-2">
-          {sorted.map(t => (
+          {activeSorted.map(t => (
             <TaskRow
               key={t.id}
               task={t}
@@ -345,6 +351,37 @@ export default function ProjectDetail() {
               onDeleteSubtask={deleteSubtask}
             />
           ))}
+
+          {completedSorted.length > 0 && (
+            <div className="mt-4">
+              <button
+                onClick={() => setCompletedOpen(v => !v)}
+                className="w-full flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-500 hover:bg-slate-50 transition-colors"
+              >
+                {completedOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                <span className="flex-1 text-right">משימות שהושלמו</span>
+                <span className="bg-slate-100 text-slate-500 text-xs rounded-full px-2 py-0.5 font-medium">
+                  {completedSorted.length}
+                </span>
+              </button>
+
+              {completedOpen && (
+                <div className="space-y-2 mt-2">
+                  {completedSorted.map(t => (
+                    <TaskRow
+                      key={t.id}
+                      task={t}
+                      onEdit={() => openModal('task', 'edit', t)}
+                      onDelete={() => setConfirmDelete(t.id)}
+                      onToggle={() => handleToggleTask(t)}
+                      onToggleSubtask={toggleSubtask}
+                      onDeleteSubtask={deleteSubtask}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
