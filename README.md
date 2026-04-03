@@ -87,6 +87,7 @@ To find these values: go to your Supabase project → **Settings** → **API**. 
 | State Management | React Context API (`AppContext` + `ToastContext`) |
 | Routing | Manual state-based routing (`currentPage` in context) |
 | Persistence | Supabase (Postgres cloud DB) |
+| PWA | vite-plugin-pwa (Workbox service worker) |
 | Language | JavaScript (JSX) |
 | Date Utilities | Custom (`dateUtils.js` — no date-fns or dayjs) |
 
@@ -172,8 +173,10 @@ src/
 - [x] user_id injected into all INSERT operations — full per-user data isolation
 - [x] RLS enabled on all tables — SELECT/UPDATE/DELETE automatically scoped to logged-in user
 - [x] User email + logout button in Sidebar footer
+- [x] PWA support — installable on mobile and desktop (manifest, service worker, icons)
+- [x] Mobile-responsive layout — hamburger sidebar, bottom-sheet modals, 44px touch targets
+- [x] Supabase Realtime — live sync for tasks, projects, and follow-ups across devices
 - [ ] Advanced task filtering and saved filter presets
-- [ ] Real-time syncing (Supabase Realtime)
 
 ---
 
@@ -190,3 +193,5 @@ src/
 **RTL-first.** Every layout, icon placement, and alignment was designed for right-to-left Hebrew reading from the start — not retrofitted.
 
 **Cloud-backed.** Data is stored in Supabase (Postgres), making it persistent, secure, and accessible from any device.
+
+**Mobile-first.** Fully responsive layout with a collapsible hamburger sidebar, bottom-sheet modals, and 44px touch targets throughout. Installable as a PWA on iOS and Android.

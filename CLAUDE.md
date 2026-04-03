@@ -30,6 +30,16 @@
 - SELECT, UPDATE, DELETE do NOT need `.eq('user_id', ...)` — Row-Level Security (RLS) on Supabase handles scoping automatically.
 - Supabase client: `src/utils/supabaseClient.js` — initialized with `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from `.env.local`.
 
+**PWA & Mobile**
+- `public/manifest.json` — PWA manifest (name, icons, theme_color, display: standalone, RTL Hebrew)
+- `public/icon.svg` — app icon (indigo background + checkmark)
+- `vite.config.js` — `VitePWA` plugin with Workbox service worker (`manifest: false` so public/manifest.json is used directly)
+- `index.html` — includes viewport, apple-touch-icon, theme-color, and manifest link tags
+- Mobile layout: Sidebar is a fixed RTL overlay on small screens (controlled by `sidebarOpen` in AppContext). `App.jsx` renders a sticky mobile top bar with hamburger (hidden on `md+`). All modals use bottom-sheet style on mobile (`items-end sm:items-center`, `rounded-t-2xl sm:rounded-2xl`). Touch targets are at least 44px.
+
+**Supabase Realtime**
+- `AppContext.jsx` subscribes to `postgres_changes` on `tasks`, `projects`, and `general_follow_ups` in a single Supabase channel (`db-realtime`). INSERT/UPDATE/DELETE events update local React state automatically. INSERT events are deduplicated (checked by ID before adding) to avoid doubles from optimistic local updates.
+
 **Table schema summary**
 ```
 projects:          id, user_id, name, description, status, color, created_at, updated_at

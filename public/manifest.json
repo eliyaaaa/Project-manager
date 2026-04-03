@@ -1,0 +1,27 @@
+{
+  "name": "מנהל פרויקטים ומשימות",
+  "short_name": "פרויקטים",
+  "description": "ניהול פרויקטים ומשימות אישי - חכם, מהיר, וממוקד",
+  "theme_color": "#6366f1",
+  "background_color": "#f8fafc",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "start_url": "/",
+  "lang": "he",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

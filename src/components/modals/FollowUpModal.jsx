@@ -82,8 +82,8 @@ export default function FollowUpModal() {
   const st  = selectedTask ? TASK_STATUSES[selectedTask.status]  : null;
 
   return (
-    <div className={`modal-backdrop fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4${isExiting ? ' exiting' : ''}`} onClick={handleClose}>
-      <div className={`modal-panel bg-white rounded-2xl shadow-2xl w-full max-w-md${isExiting ? ' exiting' : ''}`} onClick={e => e.stopPropagation()}>
+    <div className={`modal-backdrop fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 sm:p-4${isExiting ? ' exiting' : ''}`} onClick={handleClose}>
+      <div className={`modal-panel bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-md max-h-[92vh] overflow-y-auto${isExiting ? ' exiting' : ''}`} onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
           <div className="flex items-center gap-2">

@@ -55,6 +55,7 @@ export function AppProvider({ children }) {
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [taskFilters,      setTaskFilters]      = useState({ search: '', projectId: '', priority: '', status: '' });
   const [projectFilter,    setProjectFilter]    = useState('');
+  const [sidebarOpen,      setSidebarOpen]      = useState(false);
 
   // Load all data from Supabase on mount
   useEffect(() => {
@@ -75,6 +76,45 @@ export function AppProvider({ children }) {
     fetchAll();
   }, []);
 
+  // ── Supabase Realtime subscriptions ──────────────────────────────────────
+  useEffect(() => {
+    const channel = supabase
+      .channel('db-realtime')
+      // tasks
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'tasks' }, ({ new: row }) => {
+        setTasks(prev => prev.some(t => t.id === row.id) ? prev : [toTask(row), ...prev]);
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'tasks' }, ({ new: row }) => {
+        setTasks(prev => prev.map(t => t.id === row.id ? toTask(row) : t));
+      })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'tasks' }, ({ old: row }) => {
+        setTasks(prev => prev.filter(t => t.id !== row.id));
+      })
+      // projects
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'projects' }, ({ new: row }) => {
+        setProjects(prev => prev.some(p => p.id === row.id) ? prev : [toProject(row), ...prev]);
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'projects' }, ({ new: row }) => {
+        setProjects(prev => prev.map(p => p.id === row.id ? toProject(row) : p));
+      })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'projects' }, ({ old: row }) => {
+        setProjects(prev => prev.filter(p => p.id !== row.id));
+      })
+      // general_follow_ups
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'general_follow_ups' }, ({ new: row }) => {
+        setGeneralFollowUps(prev => prev.some(g => g.id === row.id) ? prev : [...prev, toGeneralFollowUp(row)]);
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'general_follow_ups' }, ({ new: row }) => {
+        setGeneralFollowUps(prev => prev.map(g => g.id === row.id ? toGeneralFollowUp(row) : g));
+      })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'general_follow_ups' }, ({ old: row }) => {
+        setGeneralFollowUps(prev => prev.filter(g => g.id !== row.id));
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
   // --- Projects ---
   const addProject = useCallback(async (data) => {
     const now = new Date().toISOString();
@@ -89,6 +129,7 @@ export function AppProvider({ children }) {
       updated_at:  now,
     };
     const { data: inserted, error } = await supabase.from('projects').insert(row).select().single();
+    if (error) console.error('Supabase error:', error);
     if (!error) setProjects(prev => [toProject(inserted), ...prev]);
     return inserted ? toProject(inserted) : null;
   }, []);
@@ -138,6 +179,7 @@ export function AppProvider({ children }) {
       updated_at:      now,
     };
     const { data: inserted, error } = await supabase.from('tasks').insert(row).select().single();
+    if (error) console.error('Supabase error:', error);
     if (!error) setTasks(prev => [toTask(inserted), ...prev]);
     return inserted ? toTask(inserted) : null;
   }, []);
@@ -219,6 +261,7 @@ export function AppProvider({ children }) {
       created_at: now,
     };
     const { data: inserted, error } = await supabase.from('general_follow_ups').insert(row).select().single();
+    if (error) console.error('Supabase error:', error);
     if (!error) setGeneralFollowUps(prev => [...prev, toGeneralFollowUp(inserted)]);
   }, []);
 
@@ -260,6 +303,7 @@ export function AppProvider({ children }) {
       addProject, updateProject, deleteProject,
       addTask, updateTask, deleteTask, toggleTaskDone,
       addSubtask, toggleSubtask, updateSubtask, deleteSubtask,
+      sidebarOpen, setSidebarOpen,
     }}>
       {children}
     </AppContext.Provider>

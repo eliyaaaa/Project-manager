@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Menu } from 'lucide-react';
 import { supabase } from './utils/supabaseClient';
 import LoginPage from './components/Auth/LoginPage';
 import { AppProvider, useApp } from './context/AppContext';
@@ -17,8 +18,18 @@ import FollowUpModal from './components/modals/FollowUpModal';
 import GeneralFollowUpEditModal from './components/modals/GeneralFollowUpEditModal';
 import ToastContainer from './components/ToastContainer';
 
+const PAGE_TITLES = {
+  dashboard:      'לוח בקרה',
+  projects:       'פרויקטים',
+  'project-detail': 'פרויקט',
+  tasks:          'כל המשימות',
+  followups:      'פולואו-אפ',
+  calendar:       'לוז',
+  review:         'סקירה שבועית',
+};
+
 function AppContent() {
-  const { currentPage, modal, loading } = useApp();
+  const { currentPage, modal, loading, setSidebarOpen } = useApp();
 
   if (loading) {
     return (
@@ -33,23 +44,43 @@ function AppContent() {
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'dashboard': return <Dashboard />;
-      case 'review':    return <ReviewPage />;
-      case 'projects':        return <ProjectList />;
-      case 'project-detail':  return <ProjectDetail />;
-      case 'tasks':           return <TaskList />;
-      case 'calendar':   return <CalendarView />;
-      case 'followups':  return <FollowUps />;
-      default:           return <Dashboard />;
+      case 'dashboard':      return <Dashboard />;
+      case 'review':         return <ReviewPage />;
+      case 'projects':       return <ProjectList />;
+      case 'project-detail': return <ProjectDetail />;
+      case 'tasks':          return <TaskList />;
+      case 'calendar':       return <CalendarView />;
+      case 'followups':      return <FollowUps />;
+      default:               return <Dashboard />;
     }
   };
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden" dir="rtl">
       <Sidebar />
-      <main key={currentPage} className="page-fade flex-1 overflow-y-auto">
-        {renderPage()}
-      </main>
+
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Mobile top bar — hidden on desktop */}
+        <header className="md:hidden sticky top-0 z-30 bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shrink-0">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 -mr-1 rounded-lg hover:bg-slate-100 text-slate-600 transition min-w-[44px] min-h-[44px] flex items-center justify-center"
+            aria-label="פתח תפריט"
+          >
+            <Menu size={22} />
+          </button>
+          <span className="text-sm font-semibold text-slate-800">
+            {PAGE_TITLES[currentPage] || 'מנהל פרויקטים'}
+          </span>
+          {/* spacer to balance the hamburger */}
+          <div className="w-10" />
+        </header>
+
+        <main key={currentPage} className="page-fade flex-1 overflow-y-auto">
+          {renderPage()}
+        </main>
+      </div>
+
       {modal?.type === 'project'  && <ProjectModal />}
       {modal?.type === 'task'     && <TaskModal />}
       {modal?.type === 'followup' && <FollowUpModal />}
@@ -63,12 +94,10 @@ export default function App() {
   const [session, setSession] = useState(undefined); // undefined = still checking
 
   useEffect(() => {
-    // Get current session on mount
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
     });
 
-    // Listen for login/logout events
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
@@ -76,7 +105,6 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Still checking session
   if (session === undefined) {
     return (
       <div className="flex h-screen items-center justify-center bg-slate-50">
@@ -85,12 +113,10 @@ export default function App() {
     );
   }
 
-  // Not logged in
   if (!session) {
     return <LoginPage />;
   }
 
-  // Logged in — show the full app
   return (
     <ToastProvider>
       <AppProvider>

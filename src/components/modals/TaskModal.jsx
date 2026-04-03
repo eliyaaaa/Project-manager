@@ -108,8 +108,8 @@ export default function TaskModal() {
   };
 
   return (
-    <div className={`modal-backdrop fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4${isExiting ? ' exiting' : ''}`} onClick={handleClose}>
-      <div className={`modal-panel bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col${isExiting ? ' exiting' : ''}`} onClick={e => e.stopPropagation()}>
+    <div className={`modal-backdrop fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 sm:p-4${isExiting ? ' exiting' : ''}`} onClick={handleClose}>
+      <div className={`modal-panel bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-lg max-h-[92vh] sm:max-h-[90vh] flex flex-col${isExiting ? ' exiting' : ''}`} onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
           <h2 className="font-bold text-slate-900 text-lg">{isEdit ? 'עריכת משימה' : 'משימה חדשה'}</h2>
@@ -433,7 +433,7 @@ export default function TaskModal() {
             <button type="button" onClick={handleClose} className="flex-1 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
               ביטול
             </button>
-            <button type="submit" className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm">
+            <button type="submit" className="flex-1 py-3 min-h-[44px] bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm">
               {isEdit ? 'שמור שינויים' : 'צור משימה'}
             </button>
           </div>

@@ -12,14 +12,14 @@ function StatCard({ icon: Icon, label, value, sub, color }) {
     green:  'bg-green-50  border-green-200  text-green-600',
   };
   return (
-    <div className={`rounded-xl border p-6 flex items-center gap-4 ${colors[color]}`}>
-      <div className="rounded-lg bg-white/70 p-2.5">
-        <Icon size={22} />
+    <div className={`rounded-xl border p-4 md:p-6 flex items-center gap-3 md:gap-4 ${colors[color]}`}>
+      <div className="rounded-lg bg-white/70 p-2 md:p-2.5 shrink-0">
+        <Icon size={18} className="md:w-[22px] md:h-[22px]" />
       </div>
-      <div>
-        <p className="text-2xl font-bold text-slate-900">{value}</p>
-        <p className="text-sm font-medium text-slate-600">{label}</p>
-        {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
+      <div className="min-w-0">
+        <p className="text-xl md:text-2xl font-bold text-slate-900">{value}</p>
+        <p className="text-xs md:text-sm font-medium text-slate-600 truncate">{label}</p>
+        {sub && <p className="text-xs text-slate-400 mt-0.5 hidden sm:block">{sub}</p>}
       </div>
     </div>
   );
@@ -35,7 +35,7 @@ function TaskRow({ task, project, onEdit }) {
   return (
     <button
       onClick={() => onEdit(task)}
-      className="w-full flex items-center gap-3 px-6 py-3 hover:bg-slate-50 rounded-lg text-right transition-colors group"
+      className="w-full flex items-center gap-2 md:gap-3 px-4 md:px-6 py-3 hover:bg-slate-50 rounded-lg text-right transition-colors group min-h-[44px]"
     >
       <div className={`w-2 h-2 rounded-full shrink-0 ${pri?.dotClass}`} />
       <div className="flex-1 min-w-0">
@@ -43,7 +43,7 @@ function TaskRow({ task, project, onEdit }) {
         {project && <p className="text-xs text-slate-400 truncate">{project.name}</p>}
       </div>
       {hasPendingFollowUp && (
-        <span className="text-xs px-2 py-0.5 rounded-full shrink-0 bg-orange-100 text-orange-700 font-medium">ממתין לתגובה</span>
+        <span className="hidden sm:inline text-xs px-2 py-0.5 rounded-full shrink-0 bg-orange-100 text-orange-700 font-medium">ממתין לתגובה</span>
       )}
       {rel && <span className={`text-xs shrink-0 ${relColor}`}>{rel.text}</span>}
       <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${pri?.bgClass}`}>{pri?.label}</span>
@@ -122,24 +122,25 @@ export default function Dashboard() {
   const byStatus = (s) => projects.filter(p => p.status === s).length;
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-8">
+    <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-6 md:space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">לוח בקרה</h1>
-          <p className="text-slate-500 text-sm mt-0.5">סקירה כללית של הפרויקטים והמשימות שלך</p>
+          <h1 className="text-xl md:text-2xl font-bold text-slate-900">לוח בקרה</h1>
+          <p className="text-slate-500 text-xs md:text-sm mt-0.5">סקירה כללית של הפרויקטים והמשימות שלך</p>
         </div>
         <button
           onClick={() => openModal('task','create')}
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
+          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2.5 md:px-4 md:py-2 rounded-lg text-sm font-medium transition-colors shadow-sm min-h-[44px]"
         >
           <Plus size={16} />
-          משימה חדשה
+          <span className="hidden sm:inline">משימה חדשה</span>
+          <span className="sm:hidden">חדשה</span>
         </button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 border-t border-slate-200/50 pt-2">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 border-t border-slate-200/50 pt-2">
         <StatCard icon={FolderOpen}    label="פרויקטים פעילים"  value={byStatus('active')}       color="indigo" />
         <StatCard icon={AlertCircle}   label="באיחור"           value={overdue.length}            color="red"    sub={overdue.length ? 'דורש טיפול מיידי' : undefined} />
         <StatCard icon={Clock}         label="להיום"            value={dueToday.length}           color="orange" />
@@ -147,20 +148,20 @@ export default function Dashboard() {
       </div>
 
       {/* Urgent + Soon */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 border-t border-slate-200/50 pt-2">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-5 border-t border-slate-200/50 pt-2">
         {/* Urgent */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+          <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 border-b border-slate-100">
             <div className="flex items-center gap-2">
               <AlertCircle size={16} className="text-red-500" />
-              <h2 className="font-semibold text-slate-800 text-base">דחוף ומיידי</h2>
+              <h2 className="font-semibold text-slate-800 text-sm md:text-base">דחוף ומיידי</h2>
               {(urgent.length + urgentFollowUpTasks.length + urgentGeneralFollowUps.length) > 0 && (
                 <span className="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full font-medium">
                   {urgent.length + urgentFollowUpTasks.length + urgentGeneralFollowUps.length}
                 </span>
               )}
             </div>
-            <button onClick={() => { setCurrentPage('tasks'); }} className="text-xs text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+            <button onClick={() => { setCurrentPage('tasks'); }} className="text-xs text-indigo-600 hover:text-indigo-800 flex items-center gap-1 min-h-[44px] px-1">
               הכל <ArrowLeft size={12} />
             </button>
           </div>
@@ -197,10 +198,10 @@ export default function Dashboard() {
 
         {/* Coming soon */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+          <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 border-b border-slate-100">
             <div className="flex items-center gap-2">
               <Clock size={16} className="text-amber-500" />
-              <h2 className="font-semibold text-slate-800 text-base">השבוע הקרוב</h2>
+              <h2 className="font-semibold text-slate-800 text-sm md:text-base">השבוע הקרוב</h2>
               {dueSoon.length > 0 && (
                 <span className="bg-amber-100 text-amber-700 text-xs px-2 py-0.5 rounded-full font-medium">{dueSoon.length}</span>
               )}
