@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../utils/supabaseClient';
 
 const AppContext = createContext(null);
@@ -44,6 +44,8 @@ const toGeneralFollowUp = (row) => ({
 });
 
 export function AppProvider({ children }) {
+  const userIdRef = useRef(null);
+
   const [projects,         setProjects]         = useState([]);
   const [tasks,            setTasks]            = useState([]);
   const [generalFollowUps, setGeneralFollowUps] = useState([]);
@@ -58,6 +60,8 @@ export function AppProvider({ children }) {
   useEffect(() => {
     async function fetchAll() {
       setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      userIdRef.current = user?.id ?? null;
       const [{ data: p }, { data: t }, { data: g }] = await Promise.all([
         supabase.from('projects').select('*').order('created_at', { ascending: false }),
         supabase.from('tasks').select('*').order('created_at', { ascending: false }),
@@ -76,6 +80,7 @@ export function AppProvider({ children }) {
     const now = new Date().toISOString();
     const row = {
       id:          genId(),
+      user_id:     userIdRef.current,
       name:        data.name,
       description: data.description || null,
       status:      data.status || 'active',
@@ -116,6 +121,7 @@ export function AppProvider({ children }) {
     const now = new Date().toISOString();
     const row = {
       id:              genId(),
+      user_id:         userIdRef.current,
       project_id:      data.projectId      || null,
       title:           data.title,
       description:     data.description    || null,
@@ -205,6 +211,7 @@ export function AppProvider({ children }) {
     const now = new Date().toISOString();
     const row = {
       id:         genId(),
+      user_id:    userIdRef.current,
       title:      data.title  || null,
       date:       data.date,
       note:       data.note   || null,
