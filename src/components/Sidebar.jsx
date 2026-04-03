@@ -1,7 +1,8 @@
-import React from 'react';
-import { LayoutDashboard, FolderKanban, ListChecks, CalendarDays, CheckCircle2, Bell } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { LayoutDashboard, FolderKanban, ListChecks, CalendarDays, CheckCircle2, Bell, LogOut } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { isOverdue, isDueToday, today } from '../utils/dateUtils';
+import { supabase } from '../utils/supabaseClient';
 
 const NAV = [
   { id: 'dashboard', label: 'לוח בקרה',    icon: LayoutDashboard },
@@ -13,6 +14,18 @@ const NAV = [
 
 export default function Sidebar() {
   const { currentPage, setCurrentPage, tasks } = useApp();
+  const [userEmail, setUserEmail] = useState('');
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setUserEmail(user.email);
+    });
+  }, []);
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    // onAuthStateChange in App.jsx will redirect to LoginPage automatically
+  }
 
   const urgentCount = tasks.filter(t =>
     t.status !== 'completed' && t.status !== 'cancelled' &&
@@ -69,9 +82,18 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* Footer */}
-      <div className="px-5 py-4 border-t border-slate-700/60">
-        <p className="text-slate-500 text-xs text-center">נתונים נשמרים בענן ☁️</p>
+      {/* Footer — user + logout */}
+      <div className="px-4 py-4 border-t border-slate-700/60 space-y-2">
+        {userEmail && (
+          <p className="text-slate-400 text-xs truncate text-right" title={userEmail}>{userEmail}</p>
+        )}
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-red-400 transition text-sm"
+        >
+          <LogOut size={16} />
+          <span className="flex-1 text-right">התנתק</span>
+        </button>
       </div>
     </aside>
   );
