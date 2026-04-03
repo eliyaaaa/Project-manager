@@ -37,6 +37,7 @@
 - `vite.config.js` — `VitePWA` plugin with Workbox service worker (`manifest: false` so public/manifest.json is used directly)
 - `index.html` — includes viewport, apple-touch-icon, theme-color, and manifest link tags
 - Mobile layout: Sidebar is a fixed RTL overlay on small screens (controlled by `sidebarOpen` in AppContext). `App.jsx` renders a sticky mobile top bar with hamburger (hidden on `md+`). All modals use bottom-sheet style on mobile (`items-end sm:items-center`, `rounded-t-2xl sm:rounded-2xl`). Touch targets are at least 44px.
+- iOS auto-zoom prevention: `src/index.css` sets `font-size: 16px` globally on `input, textarea, select` — Safari will not zoom on focus when font-size ≥ 16px.
 
 **Supabase Realtime**
 - `AppContext.jsx` subscribes to `postgres_changes` on `tasks`, `projects`, and `general_follow_ups` in a single Supabase channel (`db-realtime`). INSERT/UPDATE/DELETE events update local React state automatically. INSERT events are deduplicated (checked by ID before adding) to avoid doubles from optimistic local updates.

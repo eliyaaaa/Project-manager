@@ -178,6 +178,7 @@ src/
 - [x] Mobile-responsive layout — hamburger sidebar, bottom-sheet modals, 44px touch targets
 - [x] Supabase Realtime — live sync for tasks, projects, and follow-ups across devices
 - [x] Password reset flow — "שכחתי סיסמה" link, email reset via Supabase, new password form on return
+- [x] iOS auto-zoom fix — global `font-size: 16px` on inputs/textareas/selects prevents Safari from zooming on focus
 - [ ] Advanced task filtering and saved filter presets
 
 ---
