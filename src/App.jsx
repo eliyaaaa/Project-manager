@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from './utils/supabaseClient';
+import LoginPage from './components/Auth/LoginPage';
 import { AppProvider, useApp } from './context/AppContext';
 import { ToastProvider } from './context/ToastContext';
 import Sidebar from './components/Sidebar';
@@ -58,6 +60,37 @@ function AppContent() {
 }
 
 export default function App() {
+  const [session, setSession] = useState(undefined); // undefined = still checking
+
+  useEffect(() => {
+    // Get current session on mount
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    // Listen for login/logout events
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Still checking session
+  if (session === undefined) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-slate-50">
+        <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // Not logged in
+  if (!session) {
+    return <LoginPage />;
+  }
+
+  // Logged in — show the full app
   return (
     <ToastProvider>
       <AppProvider>

@@ -1,126 +1,15 @@
-# CLAUDE.md — Project Rules & Guidelines
+### User Profile & Context
+- **Role:** Project Lead, non-technical (no coding background).
+- **Goal:** Building a personal app for managing complex tasks and projects.
+- **Vision:** Sharp, clean, and aesthetic UX that encourages use (minimalism, clear hierarchy).
 
-## User Profile & Context
-- I am a project manager at a company, not a developer. I have no technical coding background.
-- My goal is to build a personal task and project management app for my own use.
-- The app must have a sharp, clean, aesthetic UX that encourages daily use — minimalism and clear hierarchy are non-negotiable.
+### Working Rules & Response Style
+1. **Guided Implementation:** For every code change, provide a step-by-step explanation. Specify the filename and exactly where to paste/replace the code in VS Code.
+2. **Plain Language:** Avoid complex technical jargon. Briefly explain essential technical terms (e.g., "Environment Variables").
+3. **UX Preservation:** Every new feature must align with the agreed design language (colors for status only, plenty of white space, clean typography).
+4. **Token Efficiency:** Do not rewrite entire files for minor changes. Provide only the relevant snippets and clear instructions for replacement.
+5. **Bug Prevention:** Before providing code, verify it doesn't break existing functionality defined in the project knowledge.
 
----
-
-## Working Rules & Response Style
-
-1. **Step-by-step guidance:** Whenever you propose a code change, explain exactly which file it belongs to and precisely where to paste it in VS Code / Cursor.
-
-2. **Plain language:** Avoid complex technical jargon. If a technical term is unavoidable (e.g. "Environment Variables"), explain it briefly in plain words.
-
-3. **Protect the UX:** Every new feature must match the agreed design language — colors only for statuses, generous white space, clean typography. No decorative clutter.
-
-4. **Efficient responses:** Do not repeat the entire file if only one line changed. Give me only the relevant snippet and clear replacement instructions to keep conversations concise.
-
-5. **Bug prevention:** Before sending any code, verify it does not break existing functions already defined in the project.
-
----
-
-## Design Language
-
-- **Color usage:** Colors are reserved for status indicators only (priority, project status, due date urgency). No random accent colors.
-- **Spacing:** Generous padding and white space. Cards and sections should breathe.
-- **Typography:** Clean hierarchy — one strong heading per section, subdued secondary text, no visual noise.
-- **RTL:** The app is Hebrew-first, right-to-left. All layouts, icons, and alignments must respect RTL.
-- **Consistency:** Every new component must visually match existing ones. When in doubt, follow the pattern already in the codebase.
-
----
-
-## Backend & Environment
-
-- **Database:** Supabase (cloud Postgres). Tables: `projects`, `tasks`, `general_follow_ups`.
-- **Client:** `src/utils/supabaseClient.js` — import `supabase` from here for any DB operation.
-- **Environment variables** (stored in `.env.local`, never committed):
-  - `VITE_SUPABASE_URL` — the project URL from Supabase → Settings → API
-  - `VITE_SUPABASE_ANON_KEY` — the anon/public key from the same page
-- All data is read and written through Supabase. localStorage is no longer used.
-
----
-
-## Navigation & Views
-
-- **Sidebar links (in order):** לוח בקרה, פרויקטים, כל המשימות, פולואו-אפ, לוז. The "רשימת משימות פתוחות" (ReviewPage) link has been removed from the sidebar — the page still exists in the router but is not exposed.
-- **Completed tasks accordion:** Both "All Tasks" (`TaskList`) and the Project Detail view (`ProjectDetail`) show a collapsible "משימות שהושלמו" section at the bottom, closed by default. It only appears when completed tasks exist and only in the "הכל" filter tab.
-- **Deletion confirmation:** All deletions (tasks and follow-ups) use a shared-style custom UI modal — never `window.confirm`. The modal text is context-aware: tasks say "האם אתה בטוח שברצונך למחוק משימה זו?" and follow-ups say "האם אתה בטוח שברצונך למחוק פולואו-אפ זה?".
-
----
-
-## Recovery & Setup
-
-Use this section to fully reconnect the app from scratch on a new machine or after an account issue.
-
-### External Tools
-
-| Tool | Purpose | Where to find it |
-|------|---------|-----------------|
-| **Supabase** | Cloud database (Postgres) — stores all projects, tasks, and follow-ups | supabase.com → your project |
-| **GitHub** | Source code repository and version control | github.com/eliyaaaa/Project-manager |
-| **Vercel** | Hosts the live production app, auto-deploys on every push to `main` | vercel.com → linked to the GitHub repo |
-
----
-
-### Environment Variables
-
-These go in a file called `.env.local` at the root of the project. This file is **never committed to GitHub** — you must create it manually on each new machine.
-
-```
-VITE_SUPABASE_URL=        ← Supabase → Settings → API → Project URL
-VITE_SUPABASE_ANON_KEY=   ← Supabase → Settings → API → anon / public key
-```
-
----
-
-### Supabase Table Schemas
-
-Create these three tables in Supabase → Table Editor (or SQL Editor).
-
-#### Table: `projects`
-| Column | Type | Notes |
-|--------|------|-------|
-| `id` | `text` | Primary key — generated by the app |
-| `name` | `text` | Project name |
-| `description` | `text` | Optional |
-| `status` | `text` | e.g. `active`, `on-hold`, `completed` |
-| `color` | `text` | Hex color string |
-| `created_at` | `timestamptz` | Set on insert |
-| `updated_at` | `timestamptz` | Updated on every edit |
-
-#### Table: `tasks`
-| Column | Type | Notes |
-|--------|------|-------|
-| `id` | `text` | Primary key — generated by the app |
-| `project_id` | `text` | Foreign key → `projects.id` (nullable) |
-| `title` | `text` | Task name |
-| `description` | `text` | Optional |
-| `due_date` | `text` | ISO date string e.g. `2025-06-01` (nullable) |
-| `priority` | `text` | `high`, `medium`, or `low` |
-| `status` | `text` | `todo`, `in-progress`, `completed`, `cancelled` |
-| `task_type` | `text` | `regular`, `project`, or `recurring` |
-| `recurring_topic` | `text` | Group name for recurring tasks (nullable) |
-| `assignee` | `text` | Person responsible (nullable) |
-| `notes` | `text` | Free-form notes (nullable) |
-| `subtasks` | `jsonb` | Array of `{ id, title, completed }` objects |
-| `follow_up` | `jsonb` | Object `{ date, note }` (nullable) |
-| `created_at` | `timestamptz` | Set on insert |
-| `updated_at` | `timestamptz` | Updated on every edit |
-
-#### Table: `general_follow_ups`
-| Column | Type | Notes |
-|--------|------|-------|
-| `id` | `text` | Primary key — generated by the app |
-| `title` | `text` | Follow-up label (nullable) |
-| `date` | `text` | ISO date string e.g. `2025-06-01` |
-| `note` | `text` | Optional notes |
-| `status` | `text` | `pending` or `done` |
-| `created_at` | `timestamptz` | Set on insert |
-
----
-
-## Documentation Rule
-
-- Keep `README.md` up to date with every significant change we make to the project.
+### Documentation & Roadmap
+- **Auto-Update:** After completing any feature or bug fix, automatically update the `README.md` roadmap and mark the task as done (`[x]`) without being explicitly asked.
+- **Context Awareness:** Always read `README.md` before starting a task to understand the current project status.
