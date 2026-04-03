@@ -46,8 +46,9 @@ Project Manager is a single-page React application that gives you a unified work
 
 ### Authentication
 The app requires a login before accessing any data. Authentication is handled by Supabase Auth:
-- `LoginPage` (`src/components/Auth/LoginPage.jsx`) — RTL form with email + password, supports sign-in and sign-up
-- `App.jsx` manages the session via `onAuthStateChange` — unauthenticated users see the login screen, authenticated users see the app
+- `LoginPage` (`src/components/Auth/LoginPage.jsx`) — RTL form with email + password, supports sign-in, sign-up, and password reset request ("שכחתי סיסמה")
+- `ResetPasswordPage` (`src/components/Auth/ResetPasswordPage.jsx`) — shown automatically when the user returns via a reset link; collects new password + confirmation and calls `supabase.auth.updateUser()`
+- `App.jsx` manages the session via `onAuthStateChange` — detects `PASSWORD_RECOVERY` event and renders `ResetPasswordPage`; unauthenticated users see the login screen, authenticated users see the app
 - The authenticated user's email is shown at the bottom of the Sidebar, with a logout button
 
 ### Data
@@ -176,6 +177,7 @@ src/
 - [x] PWA support — installable on mobile and desktop (manifest, service worker, icons)
 - [x] Mobile-responsive layout — hamburger sidebar, bottom-sheet modals, 44px touch targets
 - [x] Supabase Realtime — live sync for tasks, projects, and follow-ups across devices
+- [x] Password reset flow — "שכחתי סיסמה" link, email reset via Supabase, new password form on return
 - [ ] Advanced task filtering and saved filter presets
 
 ---

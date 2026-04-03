@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Menu } from 'lucide-react';
 import { supabase } from './utils/supabaseClient';
 import LoginPage from './components/Auth/LoginPage';
+import ResetPasswordPage from './components/Auth/ResetPasswordPage';
 import { AppProvider, useApp } from './context/AppContext';
 import { ToastProvider } from './context/ToastContext';
 import Sidebar from './components/Sidebar';
@@ -92,13 +93,17 @@ function AppContent() {
 
 export default function App() {
   const [session, setSession] = useState(undefined); // undefined = still checking
+  const [recoveryMode, setRecoveryMode] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setRecoveryMode(true);
+      }
       setSession(session);
     });
 
@@ -111,6 +116,10 @@ export default function App() {
         <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
       </div>
     );
+  }
+
+  if (recoveryMode) {
+    return <ResetPasswordPage onDone={() => setRecoveryMode(false)} />;
   }
 
   if (!session) {
