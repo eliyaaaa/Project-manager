@@ -6,7 +6,7 @@ A focused, Hebrew-first project and task management app built for people jugglin
 
 ## Project Overview
 
-Project Manager is a single-page React application that gives you a unified workspace to track projects, tasks, follow-ups, and recurring topics — all without a backend or login.
+Project Manager is a single-page React application that gives you a unified workspace to track projects, tasks, follow-ups, and recurring topics — backed by Supabase with full authentication and per-user data isolation.
 
 ### What it does
 
@@ -44,6 +44,12 @@ Project Manager is a single-page React application that gives you a unified work
 - Progressive disclosure in the new task form (primary fields visible by default, advanced fields expandable)
 - Active sidebar item highlighted with an indigo accent border
 
+### Authentication
+The app requires a login before accessing any data. Authentication is handled by Supabase Auth:
+- `LoginPage` (`src/components/Auth/LoginPage.jsx`) — RTL form with email + password, supports sign-in and sign-up
+- `App.jsx` manages the session via `onAuthStateChange` — unauthenticated users see the login screen, authenticated users see the app
+- The authenticated user's email is shown at the bottom of the Sidebar, with a logout button
+
 ### Data
 Data is stored in **Supabase** (cloud Postgres database). The Supabase client is initialized in `src/utils/supabaseClient.js` and can be imported into any component:
 
@@ -51,7 +57,9 @@ Data is stored in **Supabase** (cloud Postgres database). The Supabase client is
 import { supabase } from '../utils/supabaseClient'
 ```
 
-All reads and writes go through Supabase — localStorage is no longer used.
+All reads and writes go through Supabase — localStorage is not used. Every INSERT automatically includes the `user_id` of the authenticated user (injected via `userIdRef` in `AppContext`). Row-Level Security (RLS) is enabled on all tables, so each user can only access their own data.
+
+**Tables:** `projects`, `tasks`, `general_follow_ups` — each with a `user_id uuid` column linked to `auth.users`.
 
 ---
 
@@ -116,10 +124,12 @@ src/
 ├── main.jsx                         # React entry point
 ├── index.css                        # Tailwind + custom animations
 ├── context/
-│   ├── AppContext.jsx                # Global state, localStorage, all CRUD actions
+│   ├── AppContext.jsx                # Global state, all CRUD actions via Supabase
 │   └── ToastContext.jsx              # Toast notification system
 ├── components/
-│   ├── Sidebar.jsx                  # Navigation sidebar with active state
+│   ├── Auth/
+│   │   └── LoginPage.jsx            # Email + password login/signup (RTL, Supabase Auth)
+│   ├── Sidebar.jsx                  # Navigation sidebar — shows user email + logout button
 │   ├── Dashboard.jsx                # Main dashboard with all summary panels
 │   ├── TaskList.jsx                 # Full task list with filters
 │   ├── ProjectList.jsx              # Project cards grid
@@ -157,8 +167,13 @@ src/
 - [x] Completed tasks accordion in All Tasks and Project Detail views (closed by default)
 - [x] Unified custom deletion modal for tasks and follow-ups (context-aware text, no browser alerts)
 - [x] Sidebar streamlined — removed "Open Tasks" link, consistent 5-item navigation
+- [x] Supabase Auth — login/signup page with email + password (RTL, no alert())
+- [x] Session management via onAuthStateChange — auto-redirect on login/logout
+- [x] user_id injected into all INSERT operations — full per-user data isolation
+- [x] RLS enabled on all tables — SELECT/UPDATE/DELETE automatically scoped to logged-in user
+- [x] User email + logout button in Sidebar footer
 - [ ] Advanced task filtering and saved filter presets
-- [ ] Multi-user support and real-time syncing
+- [ ] Real-time syncing (Supabase Realtime)
 
 ---
 

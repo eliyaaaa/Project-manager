@@ -13,3 +13,28 @@
 ### Documentation & Roadmap
 - **Auto-Update:** After completing any feature or bug fix, automatically update the `README.md` roadmap and mark the task as done (`[x]`) without being explicitly asked.
 - **Context Awareness:** Always read `README.md` before starting a task to understand the current project status.
+
+---
+
+### Architecture: Authentication & Data Layer
+
+**Authentication (Supabase Auth)**
+- `src/components/Auth/LoginPage.jsx` — email + password form, RTL, supports sign-in and sign-up via `supabase.auth.signInWithPassword` / `supabase.auth.signUp`. No `alert()` — errors shown inline.
+- `src/App.jsx` — manages session state with `useState(undefined)` (undefined = loading, null = logged out, object = logged in). Uses `supabase.auth.getSession()` on mount + `onAuthStateChange` listener. Unauthenticated → `<LoginPage />`. Authenticated → full app.
+- `src/components/Sidebar.jsx` — shows the logged-in user's email and a logout button (`supabase.auth.signOut()`). Logout triggers `onAuthStateChange` which redirects to LoginPage automatically.
+
+**Data Layer (Supabase Postgres + RLS)**
+- All state lives in `src/context/AppContext.jsx`. No localStorage.
+- `userIdRef` (useRef) stores the authenticated user's ID fetched once on mount via `supabase.auth.getUser()`.
+- Every INSERT includes `user_id: userIdRef.current` — tables: `projects`, `tasks`, `general_follow_ups`.
+- SELECT, UPDATE, DELETE do NOT need `.eq('user_id', ...)` — Row-Level Security (RLS) on Supabase handles scoping automatically.
+- Supabase client: `src/utils/supabaseClient.js` — initialized with `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from `.env.local`.
+
+**Table schema summary**
+```
+projects:          id, user_id, name, description, status, color, created_at, updated_at
+tasks:             id, user_id, project_id, title, description, due_date, priority, status,
+                   task_type, recurring_topic, assignee, notes, subtasks (jsonb), follow_up (jsonb),
+                   created_at, updated_at
+general_follow_ups: id, user_id, title, date, note, status, created_at
+```
