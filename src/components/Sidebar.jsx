@@ -13,7 +13,7 @@ const NAV = [
 ];
 
 export default function Sidebar() {
-  const { currentPage, setCurrentPage, tasks, sidebarOpen, setSidebarOpen } = useApp();
+  const { currentPage, setCurrentPage, tasks, generalFollowUps, sidebarOpen, setSidebarOpen } = useApp();
   const [userEmail, setUserEmail] = useState('');
 
   useEffect(() => {
@@ -36,9 +36,13 @@ export default function Sidebar() {
     (isOverdue(t.dueDate) || isDueToday(t.dueDate))
   ).length;
 
-  const followUpTodayCount = tasks.filter(t =>
-    t.followUp?.date === today() && t.status !== 'completed' && t.status !== 'cancelled'
-  ).length;
+  const todayStr = today();
+  const followUpUrgentCount =
+    tasks.filter(t =>
+      t.followUp?.date && t.followUp.date <= todayStr &&
+      t.status !== 'completed' && t.status !== 'cancelled'
+    ).length +
+    generalFollowUps.filter(g => g.date && g.date <= todayStr).length;
 
   return (
     <>
@@ -99,9 +103,9 @@ export default function Sidebar() {
                     {urgentCount > 9 ? '9+' : urgentCount}
                   </span>
                 )}
-                {id === 'followups' && followUpTodayCount > 0 && (
+                {id === 'followups' && followUpUrgentCount > 0 && (
                   <span className="bg-violet-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                    {followUpTodayCount > 9 ? '9+' : followUpTodayCount}
+                    {followUpUrgentCount > 9 ? '9+' : followUpUrgentCount}
                   </span>
                 )}
               </button>

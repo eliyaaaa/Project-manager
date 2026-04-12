@@ -182,6 +182,7 @@ src/
 - [x] Mobile portrait sidebar fix — sidebar uses `h-dvh` (dynamic viewport height) so the logout button is always visible when iOS address bar is shown
 - [x] Auto-assign project when creating task from project page — project field pre-populated and visible in primary section
 - [x] Fix: standalone follow-ups (no task association) now correctly appear in Today / Upcoming / Overdue tabs
+- [x] Fix: follow-up sidebar badge now counts both task follow-ups and general follow-ups that are due today or overdue
 - [ ] Advanced task filtering and saved filter presets
 
 ---

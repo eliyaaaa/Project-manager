@@ -22,7 +22,7 @@
 - `src/components/Auth/LoginPage.jsx` — email + password form, RTL, supports sign-in, sign-up, and password reset request. Modes: `'login'` | `'signup'` | `'reset-request'`. "שכחתי סיסמה" switches to reset-request mode, calls `supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin })`. No `alert()` — errors and success messages shown inline.
 - `src/components/Auth/ResetPasswordPage.jsx` — shown when `PASSWORD_RECOVERY` event fires. Has new password + confirm fields, calls `supabase.auth.updateUser({ password })`. On success shows confirmation and calls `onDone()` after 1.8s.
 - `src/App.jsx` — manages session state with `useState(undefined)` + `recoveryMode` boolean. `onAuthStateChange` sets `recoveryMode=true` on `PASSWORD_RECOVERY` event. Render order: loading spinner → `<ResetPasswordPage>` (if recoveryMode) → `<LoginPage>` (if no session) → full app.
-- `src/components/Sidebar.jsx` — shows the logged-in user's email and a logout button (`supabase.auth.signOut()`). Logout triggers `onAuthStateChange` which redirects to LoginPage automatically.
+- `src/components/Sidebar.jsx` — shows the logged-in user's email and a logout button (`supabase.auth.signOut()`). Logout triggers `onAuthStateChange` which redirects to LoginPage automatically. The follow-up badge (`followUpUrgentCount`) counts task follow-ups with `date <= today` (status not completed/cancelled) PLUS general follow-ups with `date <= today` — matching the combined Today + Overdue logic in `FollowUps.jsx`.
 
 **Data Layer (Supabase Postgres + RLS)**
 - All state lives in `src/context/AppContext.jsx`. No localStorage.
