@@ -181,6 +181,7 @@ src/
 - [x] iOS auto-zoom fix — global `font-size: 16px` on inputs/textareas/selects prevents Safari from zooming on focus
 - [x] Mobile portrait sidebar fix — sidebar uses `h-dvh` (dynamic viewport height) so the logout button is always visible when iOS address bar is shown
 - [x] Auto-assign project when creating task from project page — project field pre-populated and visible in primary section
+- [x] Fix: standalone follow-ups (no task association) now correctly appear in Today / Upcoming / Overdue tabs
 - [ ] Advanced task filtering and saved filter presets
 
 ---

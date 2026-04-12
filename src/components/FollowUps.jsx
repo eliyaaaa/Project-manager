@@ -202,9 +202,11 @@ export default function FollowUps() {
     [tasks]
   );
 
-  // General follow-ups sorted
+  // General follow-ups sorted (only those with a date, consistent with taskFollowUps)
   const sortedGeneral = useMemo(() =>
-    [...generalFollowUps].sort((a, b) => a.date.localeCompare(b.date)),
+    generalFollowUps
+      .filter(g => g.date)
+      .sort((a, b) => a.date.localeCompare(b.date)),
     [generalFollowUps]
   );
 
