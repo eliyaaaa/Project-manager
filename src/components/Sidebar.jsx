@@ -52,7 +52,7 @@ export default function Sidebar() {
 
       {/* Sidebar panel */}
       <aside className={`
-        fixed inset-y-0 right-0 z-50 w-64 bg-slate-900 text-slate-100 flex flex-col h-screen
+        fixed inset-y-0 right-0 z-50 w-64 bg-slate-900 text-slate-100 flex flex-col h-full
         transform transition-transform duration-250 ease-in-out
         md:relative md:translate-x-0 md:w-60 md:shrink-0
         ${sidebarOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}
@@ -110,7 +110,7 @@ export default function Sidebar() {
         </nav>
 
         {/* Footer — user + logout */}
-        <div className="px-4 py-4 border-t border-slate-700/60 space-y-2">
+        <div className="px-4 py-4 border-t border-slate-700/60 space-y-2 shrink-0">
           {userEmail && (
             <p className="text-slate-400 text-xs truncate text-right" title={userEmail}>{userEmail}</p>
           )}

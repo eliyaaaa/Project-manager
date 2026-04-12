@@ -179,6 +179,7 @@ src/
 - [x] Supabase Realtime — live sync for tasks, projects, and follow-ups across devices
 - [x] Password reset flow — "שכחתי סיסמה" link, email reset via Supabase, new password form on return
 - [x] iOS auto-zoom fix — global `font-size: 16px` on inputs/textareas/selects prevents Safari from zooming on focus
+- [x] Mobile portrait sidebar fix — logout button always visible; sidebar uses `h-full` instead of `h-screen` to avoid iOS 100vh clipping bug
 - [ ] Advanced task filtering and saved filter presets
 
 ---
