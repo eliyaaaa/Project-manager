@@ -52,9 +52,9 @@ export default function Sidebar() {
 
       {/* Sidebar panel */}
       <aside className={`
-        fixed inset-y-0 right-0 z-50 w-64 bg-slate-900 text-slate-100 flex flex-col h-full
+        fixed top-0 right-0 z-50 w-64 bg-slate-900 text-slate-100 flex flex-col h-dvh
         transform transition-transform duration-250 ease-in-out
-        md:relative md:translate-x-0 md:w-60 md:shrink-0
+        md:relative md:top-auto md:translate-x-0 md:w-60 md:shrink-0 md:h-full
         ${sidebarOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}
       `}>
         {/* Logo + close button */}
