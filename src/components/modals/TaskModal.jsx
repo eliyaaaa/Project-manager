@@ -53,7 +53,7 @@ export default function TaskModal() {
         priority: 'medium', status: 'todo', subtasks: [],
         followUp: null,
         assignee: '', notes: '',
-        taskType: d.projectId ? 'project' : 'regular', recurringTopic: '',
+        taskType: 'regular', recurringTopic: '',
       });
       setShowExpanded(false);
     }
@@ -166,7 +166,7 @@ export default function TaskModal() {
             {/* Project / Topic — shown in primary only when opened from a project */}
             {hasPresetProject && (
               <>
-                {form.taskType === 'project' && (
+                {form.taskType !== 'recurring' && (
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1.5">פרויקט</label>
                     <select

@@ -41,7 +41,7 @@
 - Sidebar height fix: `Sidebar.jsx` uses `h-dvh` (`100dvh`) on mobile and `h-full` on desktop (`md:h-full`). `100dvh` is the *dynamic* viewport height — it adjusts when the iOS address bar appears/disappears, preventing the footer (logout button) from being clipped in portrait mode. `inset-y-0` replaced with explicit `top-0` to avoid conflict. Footer has `shrink-0` to stay pinned at the bottom.
 
 **TaskModal behavior**
-- `src/components/modals/TaskModal.jsx` — when opened with `defaults.projectId` (e.g. from ProjectDetail), `taskType` auto-sets to `'project'` and `projectId` is pre-populated. The user can still change both. When opened without a preset project (Dashboard, TaskList), `taskType` defaults to `'regular'`. `hasPresetProject` controls whether the project/topic field appears in the primary (always-visible) section vs. inside the expanded fields.
+- `src/components/modals/TaskModal.jsx` — when opened with `defaults.projectId` (e.g. from ProjectDetail), `projectId` is pre-populated and the project `<select>` appears in the primary (always-visible) section. `taskType` always defaults to `'regular'`; user changes it freely. `hasPresetProject` (= `!!defaults.projectId`) controls which section shows the project/topic field: primary section shows it when `taskType !== 'recurring'`; expanded section shows it when `!hasPresetProject && taskType === 'project'`.
 
 **Supabase Realtime**
 - `AppContext.jsx` subscribes to `postgres_changes` on `tasks`, `projects`, and `general_follow_ups` in a single Supabase channel (`db-realtime`). INSERT/UPDATE/DELETE events update local React state automatically. INSERT events are deduplicated (checked by ID before adding) to avoid doubles from optimistic local updates.
