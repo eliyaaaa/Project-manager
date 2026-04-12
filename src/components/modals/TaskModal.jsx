@@ -53,7 +53,7 @@ export default function TaskModal() {
         priority: 'medium', status: 'todo', subtasks: [],
         followUp: null,
         assignee: '', notes: '',
-        taskType: 'regular', recurringTopic: '',
+        taskType: d.projectId ? 'project' : 'regular', recurringTopic: '',
       });
       setShowExpanded(false);
     }

@@ -180,6 +180,7 @@ src/
 - [x] Password reset flow — "שכחתי סיסמה" link, email reset via Supabase, new password form on return
 - [x] iOS auto-zoom fix — global `font-size: 16px` on inputs/textareas/selects prevents Safari from zooming on focus
 - [x] Mobile portrait sidebar fix — sidebar uses `h-dvh` (dynamic viewport height) so the logout button is always visible when iOS address bar is shown
+- [x] Auto-assign project when creating task from project page — task type auto-set to "project" and project pre-selected
 - [ ] Advanced task filtering and saved filter presets
 
 ---
